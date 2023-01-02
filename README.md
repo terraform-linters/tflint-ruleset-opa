@@ -1,7 +1,11 @@
-# TFLint Ruleset Template
-[![Build Status](https://github.com/terraform-linters/tflint-ruleset-template/workflows/build/badge.svg?branch=main)](https://github.com/terraform-linters/tflint-ruleset-template/actions)
+# TFLint Ruleset powered by Open Policy Agent (OPA)
+[![Build Status](https://github.com/terraform-linters/tflint-ruleset-opa/workflows/build/badge.svg?branch=main)](https://github.com/terraform-linters/tflint-ruleset-opa/actions)
+[![GitHub release](https://img.shields.io/github/release/terraform-linters/tflint-ruleset-opa.svg)](https://github.com/terraform-linters/tflint-ruleset-opa/releases/latest)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](LICENSE)
 
-This is a template repository for building a custom ruleset. You can create a plugin repository from "Use this template". See also [Writing Plugins](https://github.com/terraform-linters/tflint/blob/master/docs/developer-guide/plugins.md).
+TFLint ruleset plugin for writing custom rules in [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/).
+
+NOTE: This plugin is working in progress. Not intended for general use.
 
 ## Requirements
 
@@ -10,35 +14,7 @@ This is a template repository for building a custom ruleset. You can create a pl
 
 ## Installation
 
-TODO: This template repository does not contain release binaries, so this installation will not work. Please rewrite for your repository. See the "Building the plugin" section to get this template ruleset working.
-
-You can install the plugin with `tflint --init`. Declare a config in `.tflint.hcl` as follows:
-
-```hcl
-plugin "template" {
-  enabled = true
-
-  version = "0.1.0"
-  source  = "github.com/terraform-linters/tflint-ruleset-template"
-
-  signing_key = <<-KEY
-  -----BEGIN PGP PUBLIC KEY BLOCK-----
-  mQINBGCqS2YBEADJ7gHktSV5NgUe08hD/uWWPwY07d5WZ1+F9I9SoiK/mtcNGz4P
-  JLrYAIUTMBvrxk3I+kuwhp7MCk7CD/tRVkPRIklONgtKsp8jCke7FB3PuFlP/ptL
-  SlbaXx53FCZSOzCJo9puZajVWydoGfnZi5apddd11Zw1FuJma3YElHZ1A1D2YvrF
-  ...
-  KEY
-}
-```
-
-## Rules
-
-|Name|Description|Severity|Enabled|Link|
-| --- | --- | --- | --- | --- |
-|aws_instance_example_type|Example rule for accessing and evaluating top-level attributes|ERROR|✔||
-|aws_s3_bucket_example_lifecycle_rule|Example rule for accessing top-level/nested blocks and attributes under the blocks|ERROR|✔||
-|google_compute_ssl_policy|Example rule with a custom rule config|WARNING|✔||
-|terraform_backend_type|Example rule for accessing other than resources|ERROR|✔||
+This plugin is working in progress. There is no way to install it.
 
 ## Building the plugin
 
@@ -58,7 +34,7 @@ You can run the built plugin like the following:
 
 ```
 $ cat << EOS > .tflint.hcl
-plugin "template" {
+plugin "opa" {
   enabled = true
 }
 EOS
