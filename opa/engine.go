@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hashicorp/hcl/v2"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/loader"
 	"github.com/open-policy-agent/opa/rego"
@@ -12,18 +13,11 @@ import (
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
-// Engine evaluates policies, generates a list of tflint.Rule,
-// and returns the results.
+// Engine evaluates policies and returns the results.
 // In other words, this is a wrapper of rego.New(...).Eval().
 type Engine struct {
 	store   storage.Store
 	modules map[string]*ast.Module
-
-	rules []tflint.Rule
-}
-
-func EmptyEmgine() *Engine {
-	return &Engine{}
 }
 
 // NewEngine returns a new engine based on the policies loaded
@@ -33,19 +27,9 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 		return nil, err
 	}
 
-	var rules []tflint.Rule
-	for _, module := range ret.ParsedModules() {
-		for _, rule := range module.Rules {
-			if r := NewRule(rule.Head.Name.String()); r != nil {
-				rules = append(rules, r)
-			}
-		}
-	}
-
 	return &Engine{
 		store:   store,
 		modules: ret.ParsedModules(),
-		rules:   rules,
 	}, nil
 }
 
@@ -55,6 +39,7 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 type Result struct {
 	message  string
 	severity tflint.Severity
+	location hcl.Range
 }
 
 // RunQuery executes a query referencing a rule and returns the generated
@@ -63,23 +48,24 @@ type Result struct {
 //
 // - All rules should be under the "tflint" package
 // - Rule should return a Set document
-// - The elements of the set must be objects consisting of "message" and "severity".
+// - The elements of the set must be objects consisting of "message" and "severity", and "location".
 //
 // Example:
 //
 // ```
 //
 //	deny_test[issue] {
-//	  [decision]
+//	  [condition]
 //
 //	  issue := {
 //	    "message": "test",
-//	    "severity": "error"
+//	    "severity": "error",
+//	    "location": resource.decl_range
 //	  }
 //	}
 //
 // ```
-func (e *Engine) RunQuery(rule *Rule) ([]*Result, error) {
+func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Result, error) {
 	regoOpts := []func(*rego.Rego){
 		// All rules should be under the "tflint" package
 		rego.Query(fmt.Sprintf("data.tflint.%s", rule.RegoName())),
@@ -89,6 +75,8 @@ func (e *Engine) RunQuery(rule *Rule) ([]*Result, error) {
 	for _, m := range e.modules {
 		regoOpts = append(regoOpts, rego.ParsedModule(m))
 	}
+
+	regoOpts = append(regoOpts, Functions(runner)...)
 
 	rs, err := rego.New(regoOpts...).Eval(context.Background())
 	if err != nil {
@@ -104,26 +92,11 @@ func (e *Engine) RunQuery(rule *Rule) ([]*Result, error) {
 			}
 
 			for _, value := range values {
-				issue, ok := value.(map[string]any)
-				if !ok {
-					return nil, fmt.Errorf("issue is not object, got %T", value)
-				}
-
-				message, ok := issue["message"].(string)
-				if !ok {
-					return nil, fmt.Errorf("message is not string, got %T", issue["message"])
-				}
-
-				severityStr, ok := issue["severity"].(string)
-				if !ok {
-					return nil, fmt.Errorf("severity is not string, got %T", issue["severity"])
-				}
-				severity, err := asSeverity(severityStr)
+				ret, err := jsonToResult(value, "issue")
 				if err != nil {
 					return nil, err
 				}
-
-				results = append(results, &Result{message: message, severity: severity})
+				results = append(results, ret)
 			}
 		}
 	}
@@ -131,8 +104,35 @@ func (e *Engine) RunQuery(rule *Rule) ([]*Result, error) {
 	return results, err
 }
 
-func asSeverity(in string) (tflint.Severity, error) {
-	switch strings.ToLower(in) {
+func jsonToResult(in any, path string) (*Result, error) {
+	ret, err := jsonToObject(in, path)
+	if err != nil {
+		return nil, err
+	}
+
+	message, err := jsonToString(ret["message"], fmt.Sprintf("%s.message", path))
+	if err != nil {
+		return nil, err
+	}
+	severity, err := jsonToSeverity(ret["severity"], fmt.Sprintf("%s.severity", path))
+	if err != nil {
+		return nil, err
+	}
+	location, err := jsonToRange(ret["location"], fmt.Sprintf("%s.location", path))
+	if err != nil {
+		return nil, err
+	}
+
+	return &Result{message: message, severity: severity, location: location}, nil
+}
+
+func jsonToSeverity(in any, path string) (tflint.Severity, error) {
+	severity, err := jsonToString(in, path)
+	if err != nil {
+		return tflint.ERROR, err
+	}
+
+	switch strings.ToLower(severity) {
 	case "error":
 		return tflint.ERROR, nil
 	case "warning":
@@ -140,6 +140,6 @@ func asSeverity(in string) (tflint.Severity, error) {
 	case "notice":
 		return tflint.NOTICE, nil
 	default:
-		return tflint.ERROR, fmt.Errorf("invalid severity: %s", in)
+		return tflint.ERROR, fmt.Errorf("%s is invalid: %s", path, in)
 	}
 }
