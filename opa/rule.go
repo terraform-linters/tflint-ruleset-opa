@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/hcl/v2"
+	"github.com/open-policy-agent/opa/ast"
+	"github.com/open-policy-agent/opa/ast/location"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
@@ -17,13 +18,16 @@ type Rule struct {
 	name     string
 	regoName string
 	severity tflint.Severity
+	location *location.Location
 }
 
 var _ tflint.Rule = (*Rule)(nil)
 
-// NewRule returns a tflint.Rule from rule name in Rego.
+// NewRule returns a tflint.Rule from a Rego rule.
 // Note that the rule names in TFLint and in Rego are different.
-func NewRule(regoName string, engine *Engine) *Rule {
+func NewRule(regoRule *ast.Rule, engine *Engine) *Rule {
+	regoName := regoRule.Head.Name.String()
+
 	// All valid rules must start with "deny_" (e.g. deny_test)
 	if !strings.HasPrefix(regoName, "deny_") {
 		return nil
@@ -34,6 +38,7 @@ func NewRule(regoName string, engine *Engine) *Rule {
 		// Add "opa_" to the rule name in TFLint (e.g. opa_deny_test)
 		name:     fmt.Sprintf("opa_%s", regoName),
 		regoName: regoName,
+		location: regoRule.Location,
 	}
 }
 
@@ -49,14 +54,18 @@ func (r *Rule) Severity() tflint.Severity {
 	return r.severity
 }
 
+func (r *Rule) Link() string {
+	return r.location.String()
+}
+
 func (r *Rule) Check(runner tflint.Runner) error {
-	results, err := r.engine.RunQuery(r)
+	results, err := r.engine.RunQuery(r, runner)
 	if err != nil {
 		return err
 	}
 
 	for _, ret := range results {
-		if err := runner.EmitIssue(r.WithSeverity(ret.severity), ret.message, hcl.Range{}); err != nil {
+		if err := runner.EmitIssue(r.WithSeverity(ret.severity), ret.message, ret.location); err != nil {
 			return err
 		}
 	}

@@ -60,7 +60,7 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 
 	for _, module := range ret.ParsedModules() {
 		for _, regoRule := range module.Rules {
-			if rule := NewRule(regoRule.Head.Name.String(), engine); rule != nil {
+			if rule := NewRule(regoRule, engine); rule != nil {
 				r.Rules = append(r.Rules, rule)
 			}
 		}
