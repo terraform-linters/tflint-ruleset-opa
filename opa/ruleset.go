@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hashicorp/hcl/v2"
 	"github.com/open-policy-agent/opa/loader"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
@@ -16,7 +15,6 @@ type RuleSet struct {
 	tflint.BuiltinRuleSet
 
 	config *tflint.Config
-	engine *Engine
 }
 
 // ApplyGlobalConfig is normally not expected to be overridden,
@@ -30,12 +28,9 @@ func (r *RuleSet) ApplyGlobalConfig(config *tflint.Config) error {
 }
 
 // ApplyConfig loads policies from ~/.tflint.d/policies
-// and initialize a policy engine.
-// The engine will generate rules from the compiled policies
-// and it run ApplyGlobalConfig.
+// and generates TFLint rules.
+// Run ApplyGlobalConfig after the rules are generated.
 func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
-	r.engine = EmptyEmgine()
-
 	homedir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -58,32 +53,18 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		return fmt.Errorf("failed to load policies; %w", err)
 	}
 
-	r.engine, err = NewEngine(ret)
+	engine, err := NewEngine(ret)
 	if err != nil {
 		return fmt.Errorf("failed to initialize a policy engine; %w", err)
 	}
 
-	r.Rules = r.engine.rules
-
-	return r.BuiltinRuleSet.ApplyGlobalConfig(r.config)
-}
-
-// Check runs queries and emits issues by results
-func (r *RuleSet) Check(runner tflint.Runner) error {
-	for _, rule := range r.EnabledRules {
-		rule := rule.(*Rule)
-
-		results, err := r.engine.RunQuery(rule)
-		if err != nil {
-			return fmt.Errorf(`failed to check "%s" rule; %w`, rule.Name(), err)
-		}
-
-		for _, ret := range results {
-			if err := runner.EmitIssue(rule.WithSeverity(ret.severity), ret.message, hcl.Range{}); err != nil {
-				return fmt.Errorf(`failed to emit "%s" rule issue; %w`, rule.Name(), err)
+	for _, module := range ret.ParsedModules() {
+		for _, regoRule := range module.Rules {
+			if rule := NewRule(regoRule.Head.Name.String(), engine); rule != nil {
+				r.Rules = append(r.Rules, rule)
 			}
 		}
 	}
 
-	return nil
+	return r.BuiltinRuleSet.ApplyGlobalConfig(r.config)
 }

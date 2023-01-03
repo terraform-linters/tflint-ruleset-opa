@@ -12,18 +12,11 @@ import (
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
-// Engine evaluates policies, generates a list of tflint.Rule,
-// and returns the results.
+// Engine evaluates policies and returns the results.
 // In other words, this is a wrapper of rego.New(...).Eval().
 type Engine struct {
 	store   storage.Store
 	modules map[string]*ast.Module
-
-	rules []tflint.Rule
-}
-
-func EmptyEmgine() *Engine {
-	return &Engine{}
 }
 
 // NewEngine returns a new engine based on the policies loaded
@@ -33,19 +26,9 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 		return nil, err
 	}
 
-	var rules []tflint.Rule
-	for _, module := range ret.ParsedModules() {
-		for _, rule := range module.Rules {
-			if r := NewRule(rule.Head.Name.String()); r != nil {
-				rules = append(rules, r)
-			}
-		}
-	}
-
 	return &Engine{
 		store:   store,
 		modules: ret.ParsedModules(),
-		rules:   rules,
 	}, nil
 }
 
