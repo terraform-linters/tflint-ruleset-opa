@@ -8,23 +8,15 @@ import (
 	"github.com/open-policy-agent/opa/types"
 )
 
-var rangeTy = types.NewObject(
+// range (object<filename: string, start: pos, end: pos>): range of a source file in HCL
+var rangeTy = types.Named("range", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("filename", types.S),
 		types.NewStaticProperty("start", posTy),
 		types.NewStaticProperty("end", posTy),
 	},
 	nil,
-)
-
-var posTy = types.NewObject(
-	[]*types.StaticProperty{
-		types.NewStaticProperty("line", types.N),
-		types.NewStaticProperty("column", types.N),
-		types.NewStaticProperty("bytes", types.N),
-	},
-	nil,
-)
+)).Description("range of a source file in HCL")
 
 func rangeToJSON(rng hcl.Range) map[string]any {
 	return map[string]any{
@@ -55,6 +47,16 @@ func jsonToRange(in any, path string) (hcl.Range, error) {
 
 	return hcl.Range{Filename: filename, Start: start, End: end}, nil
 }
+
+// pos (object<line: number, column: number, bytes: number>): position of a source file in HCL
+var posTy = types.Named("pos", types.NewObject(
+	[]*types.StaticProperty{
+		types.NewStaticProperty("line", types.N),
+		types.NewStaticProperty("column", types.N),
+		types.NewStaticProperty("bytes", types.N),
+	},
+	nil,
+)).Description("position of a source file in HCL")
 
 func posToJSON(pos hcl.Pos) map[string]int {
 	return map[string]int{

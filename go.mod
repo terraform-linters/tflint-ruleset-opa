@@ -6,6 +6,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.15.0
 	github.com/open-policy-agent/opa v0.47.4
 	github.com/terraform-linters/tflint-plugin-sdk v0.15.0
+	github.com/zclconf/go-cty v1.12.1
 )
 
 require (
@@ -35,7 +36,6 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yashtewari/glob-intersection v0.1.0 // indirect
-	github.com/zclconf/go-cty v1.12.1 // indirect
 	golang.org/x/net v0.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
