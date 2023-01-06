@@ -10,6 +10,8 @@ import (
 	"github.com/open-policy-agent/opa/loader"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/storage"
+	"github.com/open-policy-agent/opa/topdown/print"
+	"github.com/terraform-linters/tflint-plugin-sdk/logger"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
@@ -69,7 +71,13 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Result, error) {
 	regoOpts := []func(*rego.Rego){
 		// All rules should be under the "tflint" package
 		rego.Query(fmt.Sprintf("data.tflint.%s", rule.RegoName())),
+		// Makes it possible to refer to the loaded YAML/JSON as the "data" document
 		rego.Store(e.store),
+		// Enable strict-builtin-errors to return custom function errors immediately
+		rego.StrictBuiltinErrors(true),
+		// Enable print() to invoke logger.Debug()
+		rego.EnablePrintStatements(true),
+		rego.PrintHook(&PrintHook{}),
 	}
 
 	for _, m := range e.modules {
@@ -142,4 +150,13 @@ func jsonToSeverity(in any, path string) (tflint.Severity, error) {
 	default:
 		return tflint.ERROR, fmt.Errorf("%s is invalid: %s", path, in)
 	}
+}
+
+type PrintHook struct{}
+
+var _ print.Hook = (*PrintHook)(nil)
+
+func (h *PrintHook) Print(ctx print.Context, msg string) error {
+	logger.Debug(msg)
+	return nil
 }
