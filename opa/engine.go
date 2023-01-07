@@ -3,22 +3,29 @@ package opa
 import (
 	"context"
 	"fmt"
+	"os"
+	"strings"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/loader"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/storage"
+	"github.com/open-policy-agent/opa/topdown"
 	"github.com/open-policy-agent/opa/topdown/print"
+	"github.com/open-policy-agent/opa/version"
 	"github.com/terraform-linters/tflint-plugin-sdk/logger"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
-// Engine evaluates policies and returns the results.
+// Engine evaluates policies and returns issues.
 // In other words, this is a wrapper of rego.New(...).Eval().
 type Engine struct {
 	store   storage.Store
 	modules map[string]*ast.Module
+	print   print.Hook
+	runtime *ast.Term
 }
 
 // NewEngine returns a new engine based on the policies loaded
@@ -28,9 +35,13 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 		return nil, err
 	}
 
+	logWriter := logger.Logger().StandardWriter(&hclog.StandardLoggerOptions{ForceLevel: hclog.Debug})
+
 	return &Engine{
 		store:   store,
 		modules: ret.ParsedModules(),
+		print:   topdown.NewPrintHook(logWriter),
+		runtime: runtime(),
 	}, nil
 }
 
@@ -59,25 +70,29 @@ type Issue struct {
 //
 // ```
 func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
-	regoOpts := []func(*rego.Rego){
+	options := []func(*rego.Rego){
 		// All rules should be under the "tflint" package
 		rego.Query(fmt.Sprintf("data.tflint.%s", rule.RegoName())),
 		// Makes it possible to refer to the loaded YAML/JSON as the "data" document
 		rego.Store(e.store),
+		// Enable strict mode
+		rego.Strict(true),
 		// Enable strict-builtin-errors to return custom function errors immediately
 		rego.StrictBuiltinErrors(true),
 		// Enable print() to invoke logger.Debug()
 		rego.EnablePrintStatements(true),
-		rego.PrintHook(&PrintHook{}),
+		rego.PrintHook(e.print),
+		// Enable opa.runtime().env/version/commit
+		rego.Runtime(e.runtime),
 	}
-
+	// Set policies
 	for _, m := range e.modules {
-		regoOpts = append(regoOpts, rego.ParsedModule(m))
+		options = append(options, rego.ParsedModule(m))
 	}
+	// Enable custom functions (e.g. terraform.resources)
+	options = append(options, Functions(runner)...)
 
-	regoOpts = append(regoOpts, Functions(runner)...)
-
-	rs, err := rego.New(regoOpts...).Eval(context.Background())
+	rs, err := rego.New(options...).Eval(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -103,11 +118,21 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
 	return issues, err
 }
 
-type PrintHook struct{}
+func runtime() *ast.Term {
+	env := ast.NewObject()
+	for _, pair := range os.Environ() {
+		parts := strings.SplitN(pair, "=", 2)
+		if len(parts) == 1 {
+			env.Insert(ast.StringTerm(parts[0]), ast.NullTerm())
+		} else if len(parts) > 1 {
+			env.Insert(ast.StringTerm(parts[0]), ast.StringTerm(parts[1]))
+		}
+	}
 
-var _ print.Hook = (*PrintHook)(nil)
+	obj := ast.NewObject()
+	obj.Insert(ast.StringTerm("env"), ast.NewTerm(env))
+	obj.Insert(ast.StringTerm("version"), ast.StringTerm(version.Version))
+	obj.Insert(ast.StringTerm("commit"), ast.StringTerm(version.Vcs))
 
-func (h *PrintHook) Print(ctx print.Context, msg string) error {
-	logger.Debug(msg)
-	return nil
+	return ast.NewTerm(obj)
 }
