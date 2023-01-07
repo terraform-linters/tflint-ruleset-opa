@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/ext/typeexpr"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/types"
@@ -52,7 +54,7 @@ func resourcesFunc(runner tflint.Runner) func(*rego.Rego) {
 			if err := ast.As(b.Value, &schemaJSON); err != nil {
 				return nil, err
 			}
-			schema, err := jsonToSchema(schemaJSON, "schema")
+			schema, tyMap, err := jsonToSchema(schemaJSON, map[string]cty.Type{}, "schema")
 			if err != nil {
 				return nil, err
 			}
@@ -76,7 +78,7 @@ func resourcesFunc(runner tflint.Runner) func(*rego.Rego) {
 				return nil, err
 			}
 
-			resources, err := resourcesToJSON(content.Blocks, runner)
+			resources, err := resourcesToJSON(content.Blocks, tyMap, "schema", runner)
 			if err != nil {
 				return nil, err
 			}
@@ -97,18 +99,32 @@ var schemaTy = types.Named("schema", types.NewObject(
 	types.NewDynamicProperty(types.S, types.A),
 )).Description("representation of body schema")
 
-func jsonToSchema(in map[string]any, path string) (*hclext.BodySchema, error) {
+func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*hclext.BodySchema, map[string]cty.Type, error) {
 	schema := &hclext.BodySchema{}
 
 	for k, v := range in {
+		key := fmt.Sprintf("%s.%s", path, k)
+
 		switch cv := v.(type) {
 		case string:
+			expr, diags := hclsyntax.ParseExpression([]byte(cv), "", hcl.InitialPos)
+			if diags.HasErrors() {
+				return schema, tyMap, fmt.Errorf("type expr parse error in %s; %w", key, diags)
+			}
+			ty, diags := typeexpr.TypeConstraint(expr)
+			if diags.HasErrors() {
+				return schema, tyMap, fmt.Errorf("type constraint parse error in %s; %w", key, diags)
+			}
+			tyMap[key] = ty
+
 			schema.Attributes = append(schema.Attributes, hclext.AttributeSchema{Name: k})
 
 		case map[string]any:
-			inner, err := jsonToSchema(cv, fmt.Sprintf("%s.%s", path, k))
+			var inner *hclext.BodySchema
+			var err error
+			inner, tyMap, err = jsonToSchema(cv, tyMap, key)
 			if err != nil {
-				return schema, err
+				return schema, tyMap, err
 			}
 			schema.Blocks = append(schema.Blocks, hclext.BlockSchema{
 				Type: k,
@@ -116,11 +132,11 @@ func jsonToSchema(in map[string]any, path string) (*hclext.BodySchema, error) {
 			})
 
 		default:
-			return schema, fmt.Errorf("%s.%s is not string or object, got %T", path, k, v)
+			return schema, tyMap, fmt.Errorf("%s is not string or object, got %T", key, v)
 		}
 	}
 
-	return schema, nil
+	return schema, tyMap, nil
 }
 
 // resource (object<type: string, name: string, config: body, decl_range: range, type_range: range>): representation of "resource" blocks
@@ -135,11 +151,11 @@ var resourceTy = types.Named("resource", types.NewObject(
 	nil,
 )).Description(`representation of "resource" blocks`)
 
-func resourcesToJSON(resources hclext.Blocks, runner tflint.Runner) ([]map[string]any, error) {
+func resourcesToJSON(resources hclext.Blocks, tyMap map[string]cty.Type, path string, runner tflint.Runner) ([]map[string]any, error) {
 	ret := make([]map[string]any, len(resources))
 
 	for i, block := range resources {
-		body, err := bodyToJSON(block.Body, runner)
+		body, err := bodyToJSON(block.Body, tyMap, path, runner)
 		if err != nil {
 			return ret, err
 		}
@@ -164,11 +180,11 @@ var bodyTy = types.Named("body", types.NewObject(
 	)),
 ).Description("representation of config body")
 
-func bodyToJSON(body *hclext.BodyContent, runner tflint.Runner) (map[string]any, error) {
+func bodyToJSON(body *hclext.BodyContent, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
 	ret := map[string]any{}
 
-	for _, attr := range body.Attributes {
-		value, err := exprToJSON(attr.Expr, runner)
+	for k, attr := range body.Attributes {
+		value, err := exprToJSON(attr.Expr, tyMap, fmt.Sprintf("%s.%s", path, k), runner)
 		if err != nil {
 			return ret, err
 		}
@@ -177,7 +193,7 @@ func bodyToJSON(body *hclext.BodyContent, runner tflint.Runner) (map[string]any,
 	}
 
 	for _, block := range body.Blocks {
-		json, err := blockToJSON(block, runner)
+		json, err := blockToJSON(block, tyMap, fmt.Sprintf("%s.%s", path, block.Type), runner)
 		if err != nil {
 			return ret, err
 		}
@@ -206,7 +222,7 @@ var exprTy = types.Named("expr", types.NewObject(
 	nil,
 )).Description("representation of expressions")
 
-func exprToJSON(expr hcl.Expression, runner tflint.Runner) (map[string]any, error) {
+func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
 	ret := map[string]any{
 		"unknown":   false,
 		"sensitive": false,
@@ -229,9 +245,20 @@ func exprToJSON(expr hcl.Expression, runner tflint.Runner) (map[string]any, erro
 		return ret, nil
 	}
 
+	ty, exists := tyMap[path]
+	if !exists {
+		// should never happen
+		panic(fmt.Sprintf("cannot get type of %s", path))
+	}
+	if ty.HasDynamicTypes() {
+		// If a type has "any", it will be converted to JSON as a dynamic type, (e.g. {"value": 1, "type": "number"})
+		// so it will take advantage of the inferred type.
+		ty = value.Type()
+	}
+
 	// Convert cty.Value to JSON representation and unmarshal as any type.
 	// This allows values of any type to be valid JSON values.
-	out, err := ctyjson.Marshal(value, value.Type())
+	out, err := ctyjson.Marshal(value, ty)
 	if err != nil {
 		return ret, fmt.Errorf("internal marshal error: %w", err)
 	}
@@ -274,8 +301,8 @@ var blockTy = types.Named("block", types.NewObject(
 	nil,
 )).Description("representation of nested blocks")
 
-func blockToJSON(block *hclext.Block, runner tflint.Runner) (map[string]any, error) {
-	body, err := bodyToJSON(block.Body, runner)
+func blockToJSON(block *hclext.Block, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
+	body, err := bodyToJSON(block.Body, tyMap, path, runner)
 	if err != nil {
 		return nil, err
 	}
