@@ -28,8 +28,15 @@ var _ tflint.Rule = (*Rule)(nil)
 func NewRule(regoRule *ast.Rule, engine *Engine) *Rule {
 	regoName := regoRule.Head.Name.String()
 
-	// All valid rules must start with "deny_" (e.g. deny_test)
-	if !strings.HasPrefix(regoName, "deny_") {
+	// All valud rules must start with deny_/violation_/warn_/notice_ (e.g. deny_test)
+	var severity tflint.Severity
+	if strings.HasPrefix(regoName, "deny_") || strings.HasPrefix(regoName, "violation_") {
+		severity = tflint.ERROR
+	} else if strings.HasPrefix(regoName, "warn_") {
+		severity = tflint.WARNING
+	} else if strings.HasPrefix(regoName, "notice_") {
+		severity = tflint.NOTICE
+	} else {
 		return nil
 	}
 
@@ -38,6 +45,7 @@ func NewRule(regoRule *ast.Rule, engine *Engine) *Rule {
 		// Add "opa_" to the rule name in TFLint (e.g. opa_deny_test)
 		name:     fmt.Sprintf("opa_%s", regoName),
 		regoName: regoName,
+		severity: severity,
 		location: regoRule.Location,
 	}
 }
@@ -65,7 +73,7 @@ func (r *Rule) Check(runner tflint.Runner) error {
 	}
 
 	for _, ret := range results {
-		if err := runner.EmitIssue(r.WithSeverity(ret.severity), ret.message, ret.location); err != nil {
+		if err := runner.EmitIssue(r, ret.message, ret.location); err != nil {
 			return err
 		}
 	}
@@ -75,9 +83,4 @@ func (r *Rule) Check(runner tflint.Runner) error {
 
 func (r *Rule) RegoName() string {
 	return r.regoName
-}
-
-func (r *Rule) WithSeverity(severity tflint.Severity) *Rule {
-	r.severity = severity
-	return r
 }
