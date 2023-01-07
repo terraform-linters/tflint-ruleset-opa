@@ -67,13 +67,13 @@ func (r *Rule) Link() string {
 }
 
 func (r *Rule) Check(runner tflint.Runner) error {
-	results, err := r.engine.RunQuery(r, runner)
+	issues, err := r.engine.RunQuery(r, runner)
 	if err != nil {
 		return err
 	}
 
-	for _, ret := range results {
-		if err := runner.EmitIssue(r, ret.message, ret.location); err != nil {
+	for _, issue := range issues {
+		if err := runner.EmitIssue(r, issue.message, issue.location); err != nil {
 			return err
 		}
 	}
