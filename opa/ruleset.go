@@ -58,8 +58,16 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		return fmt.Errorf("failed to initialize a policy engine; %w", err)
 	}
 
+	regoRuleNames := map[string]bool{}
 	for _, module := range ret.ParsedModules() {
 		for _, regoRule := range module.Rules {
+			ruleName := regoRule.Head.Name.String()
+			if _, exists := regoRuleNames[ruleName]; exists {
+				// Supports incremental rules, simply ignoring rules with the same name.
+				continue
+			}
+			regoRuleNames[ruleName] = true
+
 			if rule := NewRule(regoRule, engine); rule != nil {
 				r.Rules = append(r.Rules, rule)
 			}
