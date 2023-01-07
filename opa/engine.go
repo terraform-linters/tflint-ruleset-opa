@@ -3,7 +3,6 @@ package opa
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/open-policy-agent/opa/ast"
@@ -40,7 +39,6 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 // in Rego, and is a concept corresponding to tflint.Issue.
 type Result struct {
 	message  string
-	severity tflint.Severity
 	location hcl.Range
 }
 
@@ -50,7 +48,7 @@ type Result struct {
 //
 // - All rules should be under the "tflint" package
 // - Rule should return a Set document
-// - The elements of the set must be objects consisting of "message" and "severity", and "location".
+// - The elements of the set must be objects consisting of "message" and "location".
 //
 // Example:
 //
@@ -61,7 +59,6 @@ type Result struct {
 //
 //	  issue := {
 //	    "message": "test",
-//	    "severity": "error",
 //	    "location": resource.decl_range
 //	  }
 //	}
@@ -122,34 +119,12 @@ func jsonToResult(in any, path string) (*Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	severity, err := jsonToSeverity(ret["severity"], fmt.Sprintf("%s.severity", path))
-	if err != nil {
-		return nil, err
-	}
 	location, err := jsonToRange(ret["location"], fmt.Sprintf("%s.location", path))
 	if err != nil {
 		return nil, err
 	}
 
-	return &Result{message: message, severity: severity, location: location}, nil
-}
-
-func jsonToSeverity(in any, path string) (tflint.Severity, error) {
-	severity, err := jsonToString(in, path)
-	if err != nil {
-		return tflint.ERROR, err
-	}
-
-	switch strings.ToLower(severity) {
-	case "error":
-		return tflint.ERROR, nil
-	case "warning":
-		return tflint.WARNING, nil
-	case "notice":
-		return tflint.NOTICE, nil
-	default:
-		return tflint.ERROR, fmt.Errorf("%s is invalid: %s", path, in)
-	}
+	return &Result{message: message, location: location}, nil
 }
 
 type PrintHook struct{}
