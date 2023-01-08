@@ -111,14 +111,13 @@ func jsonToOption(in map[string]string) (*option, error) {
 	return out, nil
 }
 
-// resource (object<type: string, name: string, config: body, decl_range: range, type_range: range>) representation of "resource" blocks
+// resource (object<type: string, name: string, config: body, decl_range: range>) representation of "resource" blocks
 var resourceTy = types.Named("resource", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("type", types.S),
 		types.NewStaticProperty("name", types.S),
 		types.NewStaticProperty("config", bodyTy),
 		types.NewStaticProperty("decl_range", rangeTy),
-		types.NewStaticProperty("type_range", rangeTy),
 	},
 	nil,
 )).Description(`representation of "resource" blocks`)
@@ -137,7 +136,6 @@ func resourcesToJSON(resources hclext.Blocks, tyMap map[string]cty.Type, path st
 			"name":       block.Labels[1],
 			"config":     body,
 			"decl_range": rangeToJSON(block.DefRange),
-			"type_range": rangeToJSON(block.LabelRanges[0]),
 		}
 	}
 	return ret, nil
