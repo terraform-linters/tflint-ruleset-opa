@@ -3,7 +3,6 @@ package opa
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/open-policy-agent/opa/loader"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
@@ -14,7 +13,8 @@ import (
 type RuleSet struct {
 	tflint.BuiltinRuleSet
 
-	config *tflint.Config
+	globalConfig *tflint.Config
+	config       *Config
 }
 
 // ApplyGlobalConfig is normally not expected to be overridden,
@@ -23,29 +23,32 @@ type RuleSet struct {
 // -> ApplyConfig).
 // So just save the config so that it can be applied after ApplyConfig.
 func (r *RuleSet) ApplyGlobalConfig(config *tflint.Config) error {
-	r.config = config
+	r.globalConfig = config
 	return nil
 }
 
-// ApplyConfig loads policies from ~/.tflint.d/policies
-// and generates TFLint rules.
+func (r *RuleSet) ConfigSchema() *hclext.BodySchema {
+	r.config = &Config{}
+	return hclext.ImpliedBodySchema(r.config)
+}
+
+// ApplyConfig loads policies and generates TFLint rules.
 // Run ApplyGlobalConfig after the rules are generated.
 func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return err
+	diags := hclext.DecodeBody(body, nil, r.config)
+	if diags.HasErrors() {
+		return diags
 	}
-	policyDir := filepath.Join(homedir, ".tflint.d", "policies")
 
-	info, err := os.Stat(policyDir)
+	policyDir, err := r.config.policyDir()
 	if err != nil {
+		// If you declare the directory in config or environment variables,
+		// os.ErrNotExist will not be returned, resulting in load errors
+		// later in the process.
 		if os.IsNotExist(err) {
 			return nil
 		}
 		return err
-	}
-	if !info.IsDir() {
-		return nil
 	}
 
 	ret, err := loader.NewFileLoader().Filtered([]string{policyDir}, nil)
@@ -74,5 +77,5 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		}
 	}
 
-	return r.BuiltinRuleSet.ApplyGlobalConfig(r.config)
+	return r.BuiltinRuleSet.ApplyGlobalConfig(r.globalConfig)
 }
