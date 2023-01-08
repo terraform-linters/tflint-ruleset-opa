@@ -1,6 +1,9 @@
 package opa
 
 import (
+	"path/filepath"
+
+	"github.com/hashicorp/hcl/v2"
 	"github.com/open-policy-agent/opa/ast"
 	"github.com/open-policy-agent/opa/rego"
 	"github.com/open-policy-agent/opa/types"
@@ -13,6 +16,7 @@ import (
 func Functions(runner tflint.Runner) []func(*rego.Rego) {
 	return []func(*rego.Rego){
 		resourcesFunc(runner),
+		moduleRangeFunc(runner),
 		issueFunc(),
 	}
 }
@@ -76,6 +80,50 @@ func resourcesFunc(runner tflint.Runner) func(*rego.Rego) {
 				return nil, err
 			}
 			v, err := ast.InterfaceToValue(resources)
+			if err != nil {
+				return nil, err
+			}
+
+			return ast.NewTerm(v), nil
+		},
+	)
+}
+
+// terraform.module_range: range := terraform.module_range()
+//
+// Returns a range for the current Terraform module.
+// This is useful in rules that check for non-existence.
+//
+// Returns:
+//
+//	range (range) a range for <dir>/main.tf:1:1
+func moduleRangeFunc(runner tflint.Runner) func(*rego.Rego) {
+	return rego.FunctionDyn(
+		&rego.Function{
+			Name:             "terraform.module_range",
+			Decl:             types.NewFunction(types.Args(), rangeTy),
+			Memoize:          true,
+			Nondeterministic: true,
+		},
+		func(_ rego.BuiltinContext, _ []*ast.Term) (*ast.Term, error) {
+			files, err := runner.GetFiles()
+			if err != nil {
+				return nil, err
+			}
+
+			// If there is no file, the current directory is assumed.
+			var dir string
+			for path := range files {
+				dir = filepath.Dir(path)
+				break
+			}
+
+			rng := hcl.Range{
+				Filename: filepath.Join(dir, "main.tf"),
+				Start:    hcl.InitialPos,
+				End:      hcl.InitialPos,
+			}
+			v, err := ast.InterfaceToValue(rangeToJSON(rng))
 			if err != nil {
 				return nil, err
 			}
