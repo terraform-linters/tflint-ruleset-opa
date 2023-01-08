@@ -62,6 +62,37 @@ func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*h
 	return schema, tyMap, nil
 }
 
+// options (object[expand_mode?: any<"none", "expand">]) options to change the retrieve/evaluate behavior
+var optionsTy = types.Named("options", types.NewObject(
+	nil,
+	// Use dynamic properties as optional static properties are not supported.
+	types.NewDynamicProperty(types.S, types.S),
+)).Description("options to change the retrieve/evaluate behavior")
+
+func jsonToOption(in map[string]string) (*option, error) {
+	out := &option{}
+
+	for k, v := range in {
+		switch k {
+		case "expand_mode":
+			out.expandModeSet = true
+			switch v {
+			case "none":
+				out.expandMode = tflint.ExpandModeNone
+			case "expand":
+				out.expandMode = tflint.ExpandModeExpand
+			default:
+				return out, fmt.Errorf("unknown expand mode: %s", v)
+			}
+
+		default:
+			return out, fmt.Errorf("unknown option: %s", k)
+		}
+	}
+
+	return out, nil
+}
+
 // resource (object<type: string, name: string, config: body, decl_range: range, type_range: range>) representation of "resource" blocks
 var resourceTy = types.Named("resource", types.NewObject(
 	[]*types.StaticProperty{

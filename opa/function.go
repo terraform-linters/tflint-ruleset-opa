@@ -21,28 +21,41 @@ func Functions(runner tflint.Runner) []func(*rego.Rego) {
 	}
 }
 
-// terraform.resources: resources := terraform.resources(resource_type, schema)
+type option struct {
+	expandMode    tflint.ExpandMode
+	expandModeSet bool
+}
+
+func (o *option) AsGetModuleContentOptions() *tflint.GetModuleContentOption {
+	if o.expandModeSet {
+		return &tflint.GetModuleContentOption{ExpandMode: o.expandMode}
+	}
+	return nil
+}
+
+// terraform.resources: resources := terraform.resources(resource_type, schema, options)
 //
 // Returns Terraform resources.
 //
-//	resource_type (string) resource type to retrieve. "*" is a special character that returns all resources.
-//	schema        (schema) Schema for attributes referenced in rules.
+//	resource_type (string)  resource type to retrieve. "*" is a special character that returns all resources.
+//	schema        (schema)  schema for attributes referenced in rules.
+//	options       (options) options to change the retrieve/evaluate behavior.
 //
 // Returns:
 //
 //	resources (array[resource]) Terraform resources
 func resourcesFunc(runner tflint.Runner) func(*rego.Rego) {
-	return rego.Function2(
+	return rego.Function3(
 		&rego.Function{
 			Name: "terraform.resources",
 			Decl: types.NewFunction(
-				types.Args(types.S, schemaTy),
+				types.Args(types.S, schemaTy, optionsTy),
 				types.NewArray(nil, resourceTy),
 			),
 			Memoize:          true,
 			Nondeterministic: true,
 		},
-		func(_ rego.BuiltinContext, a *ast.Term, b *ast.Term) (*ast.Term, error) {
+		func(_ rego.BuiltinContext, a *ast.Term, b *ast.Term, c *ast.Term) (*ast.Term, error) {
 			var resourceType string
 			if err := ast.As(a.Value, &resourceType); err != nil {
 				return nil, err
@@ -52,6 +65,14 @@ func resourcesFunc(runner tflint.Runner) func(*rego.Rego) {
 				return nil, err
 			}
 			schema, tyMap, err := jsonToSchema(schemaJSON, map[string]cty.Type{}, "schema")
+			if err != nil {
+				return nil, err
+			}
+			var optionJSON map[string]string
+			if err := ast.As(c.Value, &optionJSON); err != nil {
+				return nil, err
+			}
+			option, err := jsonToOption(optionJSON)
 			if err != nil {
 				return nil, err
 			}
@@ -67,9 +88,9 @@ func resourcesFunc(runner tflint.Runner) func(*rego.Rego) {
 							Body:       schema,
 						},
 					},
-				}, nil)
+				}, option.AsGetModuleContentOptions())
 			} else {
-				content, err = runner.GetResourceContent(resourceType, schema, nil)
+				content, err = runner.GetResourceContent(resourceType, schema, option.AsGetModuleContentOptions())
 			}
 			if err != nil {
 				return nil, err
