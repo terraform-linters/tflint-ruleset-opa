@@ -3,6 +3,7 @@ package opa
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -22,10 +23,11 @@ import (
 // Engine evaluates policies and returns issues.
 // In other words, this is a wrapper of rego.New(...).Eval().
 type Engine struct {
-	store   storage.Store
-	modules map[string]*ast.Module
-	print   print.Hook
-	runtime *ast.Term
+	store       storage.Store
+	modules     map[string]*ast.Module
+	print       print.Hook
+	traceWriter io.Writer
+	runtime     *ast.Term
 }
 
 // NewEngine returns a new engine based on the policies loaded
@@ -36,12 +38,20 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 	}
 
 	logWriter := logger.Logger().StandardWriter(&hclog.StandardLoggerOptions{ForceLevel: hclog.Debug})
+	printer := topdown.NewPrintHook(logWriter)
+
+	var traceWriter io.Writer
+	trace := os.Getenv("TFLINT_OPA_TRACE")
+	if trace != "" && trace != "false" && trace != "0" {
+		traceWriter = logWriter
+	}
 
 	return &Engine{
-		store:   store,
-		modules: ret.ParsedModules(),
-		print:   topdown.NewPrintHook(logWriter),
-		runtime: runtime(),
+		store:       store,
+		modules:     ret.ParsedModules(),
+		print:       printer,
+		traceWriter: traceWriter,
+		runtime:     runtime(),
 	}, nil
 }
 
@@ -70,6 +80,8 @@ type Issue struct {
 //
 // ```
 func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
+	traceEnabled := e.traceWriter != nil
+
 	options := []func(*rego.Rego){
 		// All rules should be under the "tflint" package
 		rego.Query(fmt.Sprintf("data.tflint.%s", rule.RegoName())),
@@ -82,6 +94,8 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
 		// Enable print() to invoke logger.Debug()
 		rego.EnablePrintStatements(true),
 		rego.PrintHook(e.print),
+		// Enable trace() if TFLINT_OPA_TRACE=true
+		rego.Trace(traceEnabled),
 		// Enable opa.runtime().env/version/commit
 		rego.Runtime(e.runtime),
 	}
@@ -92,9 +106,14 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
 	// Enable custom functions (e.g. terraform.resources)
 	options = append(options, Functions(runner)...)
 
-	rs, err := rego.New(options...).Eval(context.Background())
+	instance := rego.New(options...)
+	rs, err := instance.Eval(context.Background())
 	if err != nil {
 		return nil, err
+	}
+
+	if traceEnabled {
+		rego.PrintTrace(e.traceWriter, instance)
 	}
 
 	var issues []*Issue
