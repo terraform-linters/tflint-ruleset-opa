@@ -43,6 +43,23 @@ func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*h
 			schema.Attributes = append(schema.Attributes, hclext.AttributeSchema{Name: k})
 
 		case map[string]any:
+			// "__labels" is a special character that allows you to set block labels.
+			var labels []string
+			if lv, exists := cv["__labels"]; exists {
+				delete(cv, "__labels")
+				clv, ok := lv.([]any)
+				if !ok {
+					return schema, tyMap, fmt.Errorf("%s.__labels is not array of string, got %T", key, lv)
+				}
+				for _, v := range clv {
+					v, ok := v.(string)
+					if !ok {
+						return schema, tyMap, fmt.Errorf("%s.__labels is not array of string, got %T", key, lv)
+					}
+					labels = append(labels, v)
+				}
+			}
+
 			var inner *hclext.BodySchema
 			var err error
 			inner, tyMap, err = jsonToSchema(cv, tyMap, key)
@@ -50,8 +67,9 @@ func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*h
 				return schema, tyMap, err
 			}
 			schema.Blocks = append(schema.Blocks, hclext.BlockSchema{
-				Type: k,
-				Body: inner,
+				Type:       k,
+				LabelNames: labels,
+				Body:       inner,
 			})
 
 		default:
@@ -225,7 +243,7 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 	return ret, nil
 }
 
-// block (object<config: object[string: any<expr, array[block]>], decl_range: range>) representation of nested blocks
+// block (object<config: object[string: any<expr, array[block]>], labels: array[string], decl_range: range>) representation of nested blocks
 var blockTy = types.Named("block", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("config", types.NewObject(
@@ -244,12 +262,14 @@ var blockTy = types.Named("block", types.NewObject(
 								types.Or(exprTy, types.NewArray(nil, types.A)),
 							)),
 						),
+						types.NewStaticProperty("labels", types.NewArray(nil, types.S)),
 						types.NewStaticProperty("decl_range", rangeTy),
 					},
 					nil,
 				))),
 			)),
 		),
+		types.NewStaticProperty("labels", types.NewArray(nil, types.S)),
 		types.NewStaticProperty("decl_range", rangeTy),
 	},
 	nil,
@@ -263,6 +283,7 @@ func blockToJSON(block *hclext.Block, tyMap map[string]cty.Type, path string, ru
 
 	return map[string]any{
 		"config":     body,
+		"labels":     block.Labels,
 		"decl_range": rangeToJSON(block.DefRange),
 	}, nil
 }
