@@ -111,8 +111,8 @@ func jsonToOption(in map[string]string) (*option, error) {
 	return out, nil
 }
 
-// resource (object<type: string, name: string, config: body, decl_range: range>) representation of "resource" blocks
-var resourceTy = types.Named("resource", types.NewObject(
+// typed_block (object<type: string, name: string, config: body, decl_range: range>) representation of a block labeled with type and name
+var typedBlockTy = types.Named("typed_block", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("type", types.S),
 		types.NewStaticProperty("name", types.S),
@@ -120,12 +120,12 @@ var resourceTy = types.Named("resource", types.NewObject(
 		types.NewStaticProperty("decl_range", rangeTy),
 	},
 	nil,
-)).Description(`representation of "resource" blocks`)
+)).Description("representation of a block labeled with type and name")
 
-func resourcesToJSON(resources hclext.Blocks, tyMap map[string]cty.Type, path string, runner tflint.Runner) ([]map[string]any, error) {
-	ret := make([]map[string]any, len(resources))
+func typedBlocksToJSON(blocks hclext.Blocks, tyMap map[string]cty.Type, path string, runner tflint.Runner) ([]map[string]any, error) {
+	ret := make([]map[string]any, len(blocks))
 
-	for i, block := range resources {
+	for i, block := range blocks {
 		body, err := bodyToJSON(block.Body, tyMap, path, runner)
 		if err != nil {
 			return ret, err
@@ -141,12 +141,94 @@ func resourcesToJSON(resources hclext.Blocks, tyMap map[string]cty.Type, path st
 	return ret, nil
 }
 
-// body (object[string: any<expr, array[block]>]) representation of config body
+// named_block (object<name: string, config: body, decl_range: range>) representation of a block labeled with name
+var namedBlockTy = types.Named("named_block", types.NewObject(
+	[]*types.StaticProperty{
+		types.NewStaticProperty("name", types.S),
+		types.NewStaticProperty("config", bodyTy),
+		types.NewStaticProperty("decl_range", rangeTy),
+	},
+	nil,
+)).Description("representation of a block labeled with name")
+
+func namedBlocksToJSON(blocks hclext.Blocks, tyMap map[string]cty.Type, path string, runner tflint.Runner) ([]map[string]any, error) {
+	ret := make([]map[string]any, len(blocks))
+
+	for i, block := range blocks {
+		body, err := bodyToJSON(block.Body, tyMap, path, runner)
+		if err != nil {
+			return ret, err
+		}
+
+		ret[i] = map[string]any{
+			"name":       block.Labels[0],
+			"config":     body,
+			"decl_range": rangeToJSON(block.DefRange),
+		}
+	}
+	return ret, nil
+}
+
+// block (object<config: body, decl_range: range>) representation of an unlabeled block
+var blockTy = types.Named("block", types.NewObject(
+	[]*types.StaticProperty{
+		types.NewStaticProperty("config", bodyTy),
+		types.NewStaticProperty("decl_range", rangeTy),
+	},
+	nil,
+)).Description("representation of an unlabeled block")
+
+func blocksToJSON(blocks hclext.Blocks, tyMap map[string]cty.Type, path string, runner tflint.Runner) ([]map[string]any, error) {
+	ret := make([]map[string]any, len(blocks))
+
+	for i, block := range blocks {
+		body, err := bodyToJSON(block.Body, tyMap, path, runner)
+		if err != nil {
+			return ret, err
+		}
+
+		ret[i] = map[string]any{
+			"config":     body,
+			"decl_range": rangeToJSON(block.DefRange),
+		}
+	}
+	return ret, nil
+}
+
+// local (object<name: string, expr: expr, decl_range: range>) representation of a local value
+var localTy = types.Named("local", types.NewObject(
+	[]*types.StaticProperty{
+		types.NewStaticProperty("name", types.S),
+		types.NewStaticProperty("expr", exprTy),
+		types.NewStaticProperty("decl_range", rangeTy),
+	},
+	nil,
+)).Description("representation of a local value")
+
+func localsToJSON(locals hclext.Attributes, runner tflint.Runner) ([]map[string]any, error) {
+	ret := []map[string]any{}
+
+	for name, attr := range locals {
+		expr, err := exprToJSON(attr.Expr, map[string]cty.Type{name: cty.DynamicPseudoType}, name, runner)
+		if err != nil {
+			return ret, err
+		}
+
+		ret = append(ret, map[string]any{
+			"name":       name,
+			"expr":       expr,
+			"decl_range": rangeToJSON(attr.Range),
+		})
+	}
+	return ret, nil
+}
+
+// body (object[string: any<expr, array[nested_block]>]) representation of config body
 var bodyTy = types.Named("body", types.NewObject(
 	nil,
 	types.NewDynamicProperty(
 		types.S,
-		types.Or(exprTy, types.NewArray(nil, blockTy)),
+		types.Or(exprTy, types.NewArray(nil, nestedBlockTy)),
 	)),
 ).Description("representation of config body")
 
@@ -163,7 +245,7 @@ func bodyToJSON(body *hclext.BodyContent, tyMap map[string]cty.Type, path string
 	}
 
 	for _, block := range body.Blocks {
-		json, err := blockToJSON(block, tyMap, fmt.Sprintf("%s.%s", path, block.Type), runner)
+		json, err := nestedBlockToJSON(block, tyMap, fmt.Sprintf("%s.%s", path, block.Type), runner)
 		if err != nil {
 			return ret, err
 		}
@@ -181,7 +263,7 @@ func bodyToJSON(body *hclext.BodyContent, tyMap map[string]cty.Type, path string
 	return ret, nil
 }
 
-// expr (object<value: any, unknown: boolean, sensitive: boolean, range: range>) representation of expressions
+// expr (object<value: any, unknown: boolean, sensitive: boolean, range: range>) representation of an expression
 var exprTy = types.Named("expr", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("value", types.A),
@@ -190,7 +272,7 @@ var exprTy = types.Named("expr", types.NewObject(
 		types.NewStaticProperty("range", rangeTy),
 	},
 	nil,
-)).Description("representation of expressions")
+)).Description("representation of an expression")
 
 func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
 	ret := map[string]any{
@@ -241,15 +323,15 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 	return ret, nil
 }
 
-// block (object<config: object[string: any<expr, array[block]>], labels: array[string], decl_range: range>) representation of nested blocks
-var blockTy = types.Named("block", types.NewObject(
+// nested_block (object<config: object[string: any<expr, array[nested_block]>], labels: array[string], decl_range: range>) representation of a nested block
+var nestedBlockTy = types.Named("nested_block", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("config", types.NewObject(
 			nil,
 			// Same as bodyTy
 			types.NewDynamicProperty(
 				types.S,
-				// Same as types.Or(exprTy, types.NewArray(nil, blockTy)
+				// Same as types.Or(exprTy, types.NewArray(nil, nestedBlockTy)
 				types.Or(exprTy, types.NewArray(nil, types.NewObject(
 					[]*types.StaticProperty{
 						types.NewStaticProperty("config", types.NewObject(
@@ -271,9 +353,9 @@ var blockTy = types.Named("block", types.NewObject(
 		types.NewStaticProperty("decl_range", rangeTy),
 	},
 	nil,
-)).Description("representation of nested blocks")
+)).Description("representation of a nested block")
 
-func blockToJSON(block *hclext.Block, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
+func nestedBlockToJSON(block *hclext.Block, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
 	body, err := bodyToJSON(block.Body, tyMap, path, runner)
 	if err != nil {
 		return nil, err
@@ -313,7 +395,7 @@ func jsonToIssue(in any, path string) (*Issue, error) {
 	return &Issue{message: msg, location: rng}, nil
 }
 
-// range (object<filename: string, start: pos, end: pos>) range of a source file in HCL
+// range (object<filename: string, start: pos, end: pos>) range of a source file
 var rangeTy = types.Named("range", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("filename", types.S),
@@ -321,7 +403,7 @@ var rangeTy = types.Named("range", types.NewObject(
 		types.NewStaticProperty("end", posTy),
 	},
 	nil,
-)).Description("range of a source file in HCL")
+)).Description("range of a source file")
 
 func rangeToJSON(rng hcl.Range) map[string]any {
 	return map[string]any{
@@ -353,7 +435,7 @@ func jsonToRange(in any, path string) (hcl.Range, error) {
 	return hcl.Range{Filename: filename, Start: start, End: end}, nil
 }
 
-// pos (object<line: number, column: number, bytes: number>) position of a source file in HCL
+// pos (object<line: number, column: number, bytes: number>) position of a source file
 var posTy = types.Named("pos", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("line", types.N),
@@ -361,7 +443,7 @@ var posTy = types.Named("pos", types.NewObject(
 		types.NewStaticProperty("bytes", types.N),
 	},
 	nil,
-)).Description("position of a source file in HCL")
+)).Description("position of a source file")
 
 func posToJSON(pos hcl.Pos) map[string]int {
 	return map[string]int{
