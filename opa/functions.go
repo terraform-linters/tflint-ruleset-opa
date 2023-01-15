@@ -82,13 +82,13 @@ func TesterMockFunctions() []*tester.Builtin {
 }
 
 type option struct {
-	expandMode    tflint.ExpandMode
-	expandModeSet bool
+	ExpandMode    tflint.ExpandMode
+	ExpandModeSet bool
 }
 
 func (o *option) AsGetModuleContentOptions() *tflint.GetModuleContentOption {
-	if o.expandModeSet {
-		return &tflint.GetModuleContentOption{ExpandMode: o.expandMode}
+	if o.ExpandModeSet {
+		return &tflint.GetModuleContentOption{ExpandMode: o.ExpandMode}
 	}
 	return nil
 }
