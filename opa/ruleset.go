@@ -61,6 +61,13 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		return fmt.Errorf("failed to initialize a policy engine; %w", err)
 	}
 
+	// If TFLINT_OPA_TEST is set, only run tests, not policy checks
+	var testMode bool
+	test := os.Getenv("TFLINT_OPA_TEST")
+	if test != "" && test != "false" && test != "0" {
+		testMode = true
+	}
+
 	regoRuleNames := map[string]bool{}
 	for _, module := range ret.ParsedModules() {
 		for _, regoRule := range module.Rules {
@@ -71,8 +78,14 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 			}
 			regoRuleNames[ruleName] = true
 
-			if rule := NewRule(regoRule, engine); rule != nil {
-				r.Rules = append(r.Rules, rule)
+			if testMode {
+				if rule := NewTestRule(regoRule, engine); rule != nil {
+					r.Rules = append(r.Rules, rule)
+				}
+			} else {
+				if rule := NewRule(regoRule, engine); rule != nil {
+					r.Rules = append(r.Rules, rule)
+				}
 			}
 		}
 	}
