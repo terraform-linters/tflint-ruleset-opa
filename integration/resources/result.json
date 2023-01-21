@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_no_resources",
+        "severity": "error",
+        "link": "policies/main.rego:10"
+      },
+      "message": "resources should be declared",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 1,
+          "column": 1
+        },
+        "end": {
+          "line": 1,
+          "column": 1
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

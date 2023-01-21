@@ -1,0 +1,65 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_not_deny_t2_micro_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:17"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_not_deny_t2_micro_unknown_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:37"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_not_deny_t2_micro_sensitive_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:58"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

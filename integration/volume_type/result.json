@@ -1,0 +1,85 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_warn_gp3_volume",
+        "severity": "warning",
+        "link": "policies/main.rego:3"
+      },
+      "message": "gp3 is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 9,
+          "column": 19
+        },
+        "end": {
+          "line": 9,
+          "column": 24
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_warn_gp3_volume",
+        "severity": "warning",
+        "link": "policies/main.rego:3"
+      },
+      "message": "gp3 is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 18,
+          "column": 21
+        },
+        "end": {
+          "line": 18,
+          "column": 43
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_warn_gp3_volume",
+        "severity": "warning",
+        "link": "policies/main.rego:3"
+      },
+      "message": "unknown block found",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 35,
+          "column": 16
+        },
+        "end": {
+          "line": 35,
+          "column": 27
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_warn_gp3_volume",
+        "severity": "warning",
+        "link": "policies/main.rego:3"
+      },
+      "message": "unknown resource found",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 44,
+          "column": 11
+        },
+        "end": {
+          "line": 44,
+          "column": 22
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}
