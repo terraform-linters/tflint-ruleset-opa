@@ -9,7 +9,7 @@ NOTE: This plugin is working in progress. Not intended for general use.
 
 ## Requirements
 
-- TFLint v0.40+
+- TFLint v0.43+
 - Go v1.19
 
 ## Installation
