@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_remote_source",
+        "severity": "error",
+        "link": "policies/main.rego:3"
+      },
+      "message": "remote module is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 6,
+          "column": 12
+        },
+        "end": {
+          "line": 6,
+          "column": 42
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

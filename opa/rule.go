@@ -73,7 +73,7 @@ func (r *Rule) Check(runner tflint.Runner) error {
 	}
 
 	for _, issue := range issues {
-		if err := runner.EmitIssue(r, issue.message, issue.location); err != nil {
+		if err := runner.EmitIssue(r, issue.Message, issue.Range); err != nil {
 			return err
 		}
 	}

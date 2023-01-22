@@ -1,0 +1,65 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_deny_not_tagged_instance_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:19"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_deny_not_tagged_instance_without_tags_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:37"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_deny_not_tagged_instance_null_tags_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:56"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

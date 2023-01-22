@@ -59,8 +59,8 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 
 // Issue is the result of the query.
 type Issue struct {
-	message  string
-	location hcl.Range
+	Message string
+	Range   hcl.Range
 }
 
 // RunQuery executes a query referencing a rule and returns the generated
@@ -169,7 +169,7 @@ func (e *Engine) RunTest(rule *TestRule, runner tflint.Runner) ([]*Issue, error)
 		if ret.Error != nil {
 			// Location is not included as it is not an issue for HCL.
 			issues = append(issues, &Issue{
-				message: fmt.Sprintf("test errored: %s", ret.Error),
+				Message: fmt.Sprintf("test errored: %s", ret.Error),
 			})
 			continue
 		}
@@ -183,7 +183,7 @@ func (e *Engine) RunTest(rule *TestRule, runner tflint.Runner) ([]*Issue, error)
 
 		if ret.Fail {
 			issues = append(issues, &Issue{
-				message: "test failed",
+				Message: "test failed",
 			})
 		}
 	}

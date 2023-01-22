@@ -1,0 +1,45 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_us_east_1",
+        "severity": "error",
+        "link": "policies/main.rego:3"
+      },
+      "message": "us-east-1 is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 3,
+          "column": 12
+        },
+        "end": {
+          "line": 3,
+          "column": 23
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_deny_provider_ref",
+        "severity": "error",
+        "link": "policies/main.rego:12"
+      },
+      "message": "provider reference is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 7,
+          "column": 14
+        },
+        "end": {
+          "line": 7,
+          "column": 22
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

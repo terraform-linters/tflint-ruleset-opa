@@ -1,0 +1,45 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_warn_gp3_volume_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:19"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_warn_gp3_volume_unknown_dynamic_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:46"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

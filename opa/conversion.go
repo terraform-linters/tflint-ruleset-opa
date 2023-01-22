@@ -12,6 +12,7 @@ import (
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/convert"
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 )
 
@@ -32,11 +33,11 @@ func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*h
 		case string:
 			expr, diags := hclsyntax.ParseExpression([]byte(cv), "", hcl.InitialPos)
 			if diags.HasErrors() {
-				return schema, tyMap, fmt.Errorf("type expr parse error in %s; %w", key, diags)
+				return schema, tyMap, fmt.Errorf("type expr parse error in %s; %s", key, withoutSubject(diags))
 			}
 			ty, diags := typeexpr.TypeConstraint(expr)
 			if diags.HasErrors() {
-				return schema, tyMap, fmt.Errorf("type constraint parse error in %s; %w", key, diags)
+				return schema, tyMap, fmt.Errorf("type constraint parse error in %s; %s", key, withoutSubject(diags))
 			}
 			tyMap[key] = ty
 
@@ -93,12 +94,12 @@ func jsonToOption(in map[string]string) (*option, error) {
 	for k, v := range in {
 		switch k {
 		case "expand_mode":
-			out.expandModeSet = true
+			out.ExpandModeSet = true
 			switch v {
 			case "none":
-				out.expandMode = tflint.ExpandModeNone
+				out.ExpandMode = tflint.ExpandModeNone
 			case "expand":
-				out.expandMode = tflint.ExpandModeExpand
+				out.ExpandMode = tflint.ExpandModeExpand
 			default:
 				return out, fmt.Errorf("unknown expand mode: %s", v)
 			}
@@ -308,15 +309,20 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 		ty = value.Type()
 	}
 
+	value, err = convert.Convert(value, ty)
+	if err != nil {
+		return ret, fmt.Errorf("type error in %s; %w", expr.Range(), err)
+	}
+
 	// Convert cty.Value to JSON representation and unmarshal as any type.
 	// This allows values of any type to be valid JSON values.
 	out, err := ctyjson.Marshal(value, ty)
 	if err != nil {
-		return ret, fmt.Errorf("internal marshal error: %w", err)
+		return ret, fmt.Errorf("internal marshal error in %s; %w", expr.Range(), err)
 	}
 	var val any
 	if err := json.Unmarshal(out, &val); err != nil {
-		return ret, fmt.Errorf("internal unmarshal error: %w", err)
+		return ret, fmt.Errorf("internal unmarshal error in %s; %w", expr.Range(), err)
 	}
 	ret["value"] = val
 
@@ -392,7 +398,7 @@ func jsonToIssue(in any, path string) (*Issue, error) {
 		return nil, err
 	}
 
-	return &Issue{message: msg, location: rng}, nil
+	return &Issue{Message: msg, Range: rng}, nil
 }
 
 // range (object<filename: string, start: pos, end: pos>) range of a source file
@@ -435,12 +441,12 @@ func jsonToRange(in any, path string) (hcl.Range, error) {
 	return hcl.Range{Filename: filename, Start: start, End: end}, nil
 }
 
-// pos (object<line: number, column: number, bytes: number>) position of a source file
+// pos (object<line: number, column: number, byte: number>) position of a source file
 var posTy = types.Named("pos", types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("line", types.N),
 		types.NewStaticProperty("column", types.N),
-		types.NewStaticProperty("bytes", types.N),
+		types.NewStaticProperty("byte", types.N),
 	},
 	nil,
 )).Description("position of a source file")
@@ -449,7 +455,7 @@ func posToJSON(pos hcl.Pos) map[string]int {
 	return map[string]int{
 		"line":   pos.Line,
 		"column": pos.Column,
-		"bytes":  pos.Byte,
+		"byte":   pos.Byte,
 	}
 }
 
@@ -467,12 +473,12 @@ func jsonToPos(in any, path string) (hcl.Pos, error) {
 	if err != nil {
 		return hcl.Pos{}, err
 	}
-	bytes, err := jsonToInt(pos["bytes"], fmt.Sprintf("%s.bytes", path))
+	by, err := jsonToInt(pos["byte"], fmt.Sprintf("%s.byte", path))
 	if err != nil {
 		return hcl.Pos{}, err
 	}
 
-	return hcl.Pos{Line: line, Column: column, Byte: bytes}, nil
+	return hcl.Pos{Line: line, Column: column, Byte: by}, nil
 }
 
 func jsonToObject(in any, path string) (map[string]any, error) {
@@ -501,4 +507,16 @@ func jsonToInt(in any, path string) (int, error) {
 		return 0, err
 	}
 	return int(num), nil
+}
+
+func withoutSubject(diags hcl.Diagnostics) string {
+	count := len(diags)
+	switch {
+	case count == 0:
+		return "no diagnostics"
+	case count == 1:
+		return fmt.Sprintf("%s; %s", diags[0].Summary, diags[0].Detail)
+	default:
+		return fmt.Sprintf("%s; %s, and %d other diagnostic(s)", diags[0].Summary, diags[0].Detail, count-1)
+	}
 }

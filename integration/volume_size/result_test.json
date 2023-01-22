@@ -1,0 +1,65 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_deny_large_volume_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:19"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_deny_large_volume_string_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:40"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_deny_large_volume_float_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:61"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}
