@@ -10,8 +10,9 @@ func main() {
 	plugin.Serve(&plugin.ServeOpts{
 		RuleSet: &opa.RuleSet{
 			BuiltinRuleSet: tflint.BuiltinRuleSet{
-				Name:    "opa",
-				Version: "0.1.0",
+				Name:       "opa",
+				Version:    "0.1.0",
+				Constraint: ">= 0.43.0",
 			},
 		},
 	})
