@@ -100,10 +100,12 @@ deny_test[issue] {
 package tflint
 
 deny_test[issue] {
-	issue := tflint.issue("example issue", "main.tf:1,1-1")
+	resources := terraform.resources("*", {}, {"unknown": "option"})
+	resource := resources[_]
+	issue := tflint.issue("example issue", resource.decl_range)
 }`,
 			},
-			err: "main.rego:5: eval_builtin_error: tflint.issue: json: cannot unmarshal string into Go value of type map[string]interface {}",
+			err: "main.rego:5: eval_builtin_error: terraform.resources: unknown option: unknown",
 		},
 		{
 			name: "invalid issue",
