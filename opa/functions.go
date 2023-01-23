@@ -450,23 +450,12 @@ func issueFunc() *function2 {
 	return &function2{
 		function: function{
 			Decl: &rego.Function{
-				Name: "tflint.issue",
-				// FIXME: types.A should be range, but panic by an OPA bug.
-				// @see https://github.com/open-policy-agent/opa/blob/v0.47.4/ast/check.go#L829
-				Decl:    types.NewFunction(types.Args(types.S, types.A), issueTy),
+				Name:    "tflint.issue",
+				Decl:    types.NewFunction(types.Args(types.S, rangeTy), issueTy),
 				Memoize: true,
 			},
 		},
 		Func: func(_ rego.BuiltinContext, msgArg *ast.Term, rngArg *ast.Term) (*ast.Term, error) {
-			var rng map[string]any
-			if err := ast.As(rngArg.Value, &rng); err != nil {
-				return nil, err
-			}
-			// type checking only
-			if _, err := jsonToRange(rng, "range"); err != nil {
-				return nil, err
-			}
-
 			return ast.ObjectTerm(
 				ast.Item(ast.StringTerm("msg"), msgArg),
 				ast.Item(ast.StringTerm("range"), rngArg),
