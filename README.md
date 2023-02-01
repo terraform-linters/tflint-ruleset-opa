@@ -14,7 +14,80 @@ NOTE: This plugin is working in progress. Not intended for general use.
 
 ## Installation
 
-This plugin is working in progress. There is no way to install it.
+NOTE: This plugin is working in progress. There is no way to install it.
+
+You can install the plugin by adding a config to `.tflint.hcl` and running `tflint --init`:
+
+```hcl
+plugin "opa" {
+  enabled = true
+  version = "0.1.0"
+  source  = "github.com/terraform-linters/tflint-ruleset-opa"
+}
+```
+
+Policy files are placed under `~/.tflint.d/policies` or `./.tflint.d/policies`. First create a directory:
+
+```console
+$ mkdir -p .tflint.d/policies
+```
+
+For more configuration about the plugin, see [Plugin Configuration](./docs/configuration.md).
+
+## Getting Started
+
+TFLint plugin system allows you to add custom rules, but plugins can be a pain to maintain when applying a few simple organization policies. This ruleset plugin provides the ability to write policies in Rego, instead of building plugins in Go.
+
+For example, your organization wants to enforce S3 bucket names to always start with `example-com-*`. You can write the following policy as `./.tflint.d/policies/bucket.rego`:
+
+```rego
+package tflint
+
+deny_invalid_s3_bucket_name[issue] {
+  buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
+  name := buckets[_].config.bucket
+  not startswith(name.value, "example-com-")
+
+  issue := tflint.issue(`Bucket names should always start with "example-com-"`, name.range)
+}
+```
+
+This allows you to issue errors for Terraform configs such as:
+
+```hcl
+resource "aws_s3_bucket" "invalid" {
+  bucket = "example-corp-assets"
+}
+
+resource "aws_s3_bucket" "valid" {
+  bucket = "example-com-assets"
+}
+```
+
+```console
+$ tflint
+1 issue(s) found:
+
+Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3_bucket_name)
+
+  on main.tf line 2:
+   2:   bucket = "example-corp-assets"
+
+Reference: .tflint.d/policies/bucket.rego:3
+
+```
+
+See [the documentation](./docs/) and [examples](./examples/) for details.
+
+NOTE: This policy cannot be enforced in all cases. See [Handling unknown/null/undefined values](./docs/handling_special_values.md) for details.
+
+## OPA Ruleset vs. Custom Ruleset
+
+There are two options for providing custom rules: the OPA ruleset and a custom ruleset. Which is better?
+
+If you want to enforce a small number of rules for a small team, or if your don't have a dedicated team to maintain your plugin, starting with the OPA ruleset is probably a good option.
+
+On the other hand, building and maintaining a custom ruleset plugin is better when enforcing many complex rules or distributing to large teams.
 
 ## Building the plugin
 
