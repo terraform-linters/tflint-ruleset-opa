@@ -5,7 +5,7 @@
 
 TFLint ruleset plugin for writing custom rules in [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/).
 
-NOTE: This plugin is working in progress. Not intended for general use.
+NOTE: This plugin is experimental. This means frequent breaking changes.
 
 ## Requirements
 
@@ -13,8 +13,6 @@ NOTE: This plugin is working in progress. Not intended for general use.
 - Go v1.19
 
 ## Installation
-
-NOTE: This plugin is working in progress. There is no way to install it.
 
 You can install the plugin by adding a config to `.tflint.hcl` and running `tflint --init`:
 
