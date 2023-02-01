@@ -1,18 +1,15 @@
-name: release
+name: goreleaser
 
 on:
   push:
     branches:
-    - '!*'
-    tags:
-    - v*.*.*
-
-permissions:
-  contents: write
-  id-token: write
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  goreleaser:
+  check:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -23,13 +20,8 @@ jobs:
       uses: actions/setup-go@v3
       with:
         go-version-file: 'go.mod'
-        cache: true
-    - name: Install Cosign
-      uses: sigstore/cosign-installer@v2
-    - name: Run GoReleaser
+    - name: goreleaser check
       uses: goreleaser/goreleaser-action@v4
       with:
         version: v1.12.3
-        args: release --rm-dist
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        args: check
