@@ -6,7 +6,7 @@ require (
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-hclog v1.4.0
 	github.com/hashicorp/hcl/v2 v2.15.0
-	github.com/liamg/memoryfs v1.5.0
+	github.com/liamg/memoryfs v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/open-policy-agent/opa v0.48.0
 	github.com/terraform-linters/tflint-plugin-sdk v0.15.0
