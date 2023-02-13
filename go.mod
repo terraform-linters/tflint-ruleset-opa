@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.16.1
 	github.com/liamg/memoryfs v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/open-policy-agent/opa v0.48.0
+	github.com/open-policy-agent/opa v0.49.0
 	github.com/terraform-linters/tflint-plugin-sdk v0.15.0
 	github.com/zclconf/go-cty v1.12.1
 )
@@ -30,7 +30,6 @@ require (
 	github.com/mitchellh/go-testing-interface v0.0.0-20171004221916-a61a99592b77 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/oklog/run v1.0.0 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.1 // indirect
 	github.com/vmihailenco/msgpack/v4 v4.3.12 // indirect
@@ -42,8 +41,8 @@ require (
 	golang.org/x/sys v0.4.0 // indirect
 	golang.org/x/text v0.6.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220502173005-c8bf987b8c21 // indirect
-	google.golang.org/grpc v1.51.0 // indirect
+	google.golang.org/genproto v0.0.0-20221118155620-16455021b5e6 // indirect
+	google.golang.org/grpc v1.52.3 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
