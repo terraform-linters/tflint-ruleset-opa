@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/google/go-cmp v0.5.9
 	github.com/hashicorp/go-hclog v1.4.0
-	github.com/hashicorp/hcl/v2 v2.16.1
+	github.com/hashicorp/hcl/v2 v2.16.2
 	github.com/liamg/memoryfs v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/open-policy-agent/opa v0.49.2
