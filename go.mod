@@ -8,7 +8,7 @@ require (
 	github.com/hashicorp/hcl/v2 v2.16.2
 	github.com/liamg/memoryfs v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/open-policy-agent/opa v0.50.0
+	github.com/open-policy-agent/opa v0.50.1
 	github.com/terraform-linters/tflint-plugin-sdk v0.15.0
 	github.com/zclconf/go-cty v1.13.0
 )
