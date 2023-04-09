@@ -9,7 +9,6 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
-	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -236,7 +235,7 @@ variable "instance_type" {
 	sensitive = true
 }`,
 			expr: parse("var.instance_type"),
-			err:  tflint.ErrSensitive,
+			want: `cty.StringVal("t2.micro").Mark(marks.Sensitive)`,
 		},
 	}
 

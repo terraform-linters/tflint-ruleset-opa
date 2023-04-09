@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclparse"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/terraform/addrs"
+	"github.com/terraform-linters/tflint-plugin-sdk/terraform/lang/marks"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
@@ -97,7 +98,7 @@ func (r *testRunner) GetModuleContent(schema *hclext.BodySchema, _ *tflint.GetMo
 	return content, nil
 }
 
-var sensitiveMark = cty.NewValueMarks("sensitive")
+var sensitiveMark = cty.NewValueMarks(marks.Sensitive)
 
 // EvaluateExpr returns a value of the passed expression.
 // Not expected to reflect anything other than cty.Value.
@@ -123,9 +124,6 @@ func (r *testRunner) EvaluateExpr(expr hcl.Expression, ret interface{}, _ *tflin
 	})
 	if diags.HasErrors() {
 		return diags
-	}
-	if val.IsMarked() {
-		return tflint.ErrSensitive
 	}
 
 	return gocty.FromCtyValue(val, ret)
