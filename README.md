@@ -19,7 +19,7 @@ You can install the plugin by adding a config to `.tflint.hcl` and running `tfli
 ```hcl
 plugin "opa" {
   enabled = true
-  version = "0.1.0"
+  version = "0.2.0"
   source  = "github.com/terraform-linters/tflint-ruleset-opa"
 }
 ```

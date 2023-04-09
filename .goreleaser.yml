@@ -22,8 +22,6 @@ checksum:
   name_template: 'checksums.txt'
 signs:
   - cmd: cosign
-    env:
-    - COSIGN_EXPERIMENTAL=1
     signature: '${artifact}.keyless.sig'
     certificate: '${artifact}.pem'
     output: true
@@ -33,6 +31,7 @@ signs:
       - '--output-certificate=${certificate}'
       - '--output-signature=${signature}'
       - '${artifact}'
+      - --yes
 release:
   github:
     owner: terraform-linters
