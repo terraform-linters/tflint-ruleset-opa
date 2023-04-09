@@ -10,7 +10,7 @@ NOTE: This plugin is experimental. This means frequent breaking changes.
 ## Requirements
 
 - TFLint v0.43+
-- Go v1.19
+- Go v1.20
 
 ## Installation
 
