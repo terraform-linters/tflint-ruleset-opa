@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/open-policy-agent/opa/types"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
+	"github.com/terraform-linters/tflint-plugin-sdk/terraform/lang/marks"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/convert"
@@ -292,6 +293,11 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 			return ret, nil
 		}
 		return ret, err
+	}
+	if marks.Contains(value, marks.Sensitive) {
+		ret["unknown"] = true
+		ret["sensitive"] = true
+		return ret, nil
 	}
 	if !value.IsWhollyKnown() {
 		ret["unknown"] = true

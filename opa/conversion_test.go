@@ -583,6 +583,21 @@ func TestExprToJSON(t *testing.T) {
 			source: `variable "foo" { sensitive = true }`,
 		},
 		{
+			name:  "composite sensitive",
+			input: parse("[var.foo]"),
+			ty:    cty.String,
+			want: map[string]any{
+				"unknown":   true,
+				"sensitive": true,
+				"range": map[string]any{
+					"filename": "main.tf",
+					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
+					"end":      map[string]int{"line": 1, "column": 10, "byte": 9},
+				},
+			},
+			source: `variable "foo" { sensitive = true }`,
+		},
+		{
 			name:  "invalid type",
 			input: hcl.StaticExpr(cty.StringVal("foo"), hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}),
 			ty:    cty.Number,
