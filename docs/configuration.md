@@ -22,3 +22,5 @@ Change the directory from which policies are loaded. The priority is as follows:
 2. `TFLINT_OPA_POLICY_DIR` environment variable
 3. `./.tflint.d/policies`
 4. `~/.tflint.d/policies`
+
+A relative path is resolved from the current directory.
