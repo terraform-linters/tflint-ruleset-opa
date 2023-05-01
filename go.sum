@@ -100,8 +100,8 @@ github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/tchap/go-patricia/v2 v2.3.1 h1:6rQp39lgIYZ+MHmdEq4xzuk1t7OdC35z/xm0BGhTkes=
 github.com/tchap/go-patricia/v2 v2.3.1/go.mod h1:VZRHKAb53DLaG+nA9EaYYiaEx6YztwDlLElMsnSHD4k=
-github.com/terraform-linters/tflint-plugin-sdk v0.16.0 h1:cphgBlhJMLQeLbxXUHoPEP+pK8hhsa1xTzAHhxpbz9E=
-github.com/terraform-linters/tflint-plugin-sdk v0.16.0/go.mod h1:gmniajq5rA+cXxnd3/SquWQDGKndwNvCVsCfivYeH8c=
+github.com/terraform-linters/tflint-plugin-sdk v0.16.1 h1:fBfLL8KzP3pkQrNp3iQxaGoKBoMo2sFYoqmhuo6yc+A=
+github.com/terraform-linters/tflint-plugin-sdk v0.16.1/go.mod h1:ltxVy04PRwptL6P/Ugz2ZeTNclYapClrLn/kVFXJGzo=
 github.com/vmihailenco/msgpack/v5 v5.3.5 h1:5gO0H1iULLWGhs2H5tbAHIZTV8/cYafcFOr9znI5mJU=
 github.com/vmihailenco/msgpack/v5 v5.3.5/go.mod h1:7xyJ9e+0+9SaZT0Wt1RGleJXzli6Q/V5KbhBonMG9jc=
 github.com/vmihailenco/tagparser/v2 v2.0.0 h1:y09buUbR+b5aycVFQs/g70pqKVZNBmxwAhO7/IwNM9g=
