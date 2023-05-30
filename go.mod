@@ -10,7 +10,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/open-policy-agent/opa v0.53.0
 	github.com/terraform-linters/tflint-plugin-sdk v0.16.1
-	github.com/zclconf/go-cty v1.13.1
+	github.com/zclconf/go-cty v1.13.2
 )
 
 require (
