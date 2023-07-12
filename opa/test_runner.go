@@ -147,6 +147,10 @@ func (r *testRunner) EmitIssue(rule tflint.Rule, message string, location hcl.Ra
 	panic("Not implemented in test runner")
 }
 
+func (r *testRunner) EmitIssueWithFix(rule tflint.Rule, message string, location hcl.Range, fixFunc func(f tflint.Fixer) error) error {
+	panic("Not implemented in test runner")
+}
+
 func (r *testRunner) EnsureNoError(err error, proc func() error) error {
 	panic("Not implemented in test runner")
 }
