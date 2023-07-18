@@ -1,3 +1,16 @@
+## 0.3.0 (2023-07-19)
+
+### Enhancements
+
+- [#42](https://github.com/terraform-linters/tflint-ruleset-opa/pull/42) [#51](https://github.com/terraform-linters/tflint-ruleset-opa/pull/51): Bump github.com/terraform-linters/tflint-plugin-sdk from 0.16.0 to 0.17.0
+- [#45](https://github.com/terraform-linters/tflint-ruleset-opa/pull/45) [#47](https://github.com/terraform-linters/tflint-ruleset-opa/pull/47) [#49](https://github.com/terraform-linters/tflint-ruleset-opa/pull/49) [#52](https://github.com/terraform-linters/tflint-ruleset-opa/pull/52): Bump github.com/open-policy-agent/opa from 0.51.0 to 0.54.0
+
+### Chores
+
+- [#44](https://github.com/terraform-linters/tflint-ruleset-opa/pull/44): docs: Clarify what `policy_dir` is relative to
+- [#46](https://github.com/terraform-linters/tflint-ruleset-opa/pull/46): Bump github.com/zclconf/go-cty from 1.13.1 to 1.13.2
+- [#48](https://github.com/terraform-linters/tflint-ruleset-opa/pull/48): Bump github.com/hashicorp/hcl/v2 from 2.16.2 to 2.17.0
+
 ## 0.2.0 (2023-04-10)
 
 ### Enhancements
