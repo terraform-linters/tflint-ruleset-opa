@@ -1,6 +1,6 @@
 module github.com/terraform-linters/tflint-ruleset-opa
 
-go 1.20
+go 1.21.1
 
 require (
 	github.com/google/go-cmp v0.5.9
@@ -17,7 +17,6 @@ require (
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
-	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
