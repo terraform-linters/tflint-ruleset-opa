@@ -1,3 +1,19 @@
+## 0.4.0 (2023-10-09)
+
+### Enhancements
+
+- [#53](https://github.com/terraform-linters/tflint-ruleset-opa/pull/53) [#59](https://github.com/terraform-linters/tflint-ruleset-opa/pull/59) [#63](https://github.com/terraform-linters/tflint-ruleset-opa/pull/63): Bump github.com/open-policy-agent/opa from 0.54.0 to 0.57.0
+
+### Chores
+
+- [#54](https://github.com/terraform-linters/tflint-ruleset-opa/pull/54): Bump github.com/terraform-linters/tflint-plugin-sdk from 0.17.0 to 0.18.0
+- [#55](https://github.com/terraform-linters/tflint-ruleset-opa/pull/55): Add raw binary entries to checksums.txt
+- [#56](https://github.com/terraform-linters/tflint-ruleset-opa/pull/56) [#58](https://github.com/terraform-linters/tflint-ruleset-opa/pull/58): Bump github.com/zclconf/go-cty from 1.13.2 to 1.14.0
+- [#57](https://github.com/terraform-linters/tflint-ruleset-opa/pull/57): Bump actions/checkout from 3 to 4
+- [#60](https://github.com/terraform-linters/tflint-ruleset-opa/pull/60): Bump github.com/hashicorp/hcl/v2 from 2.17.0 to 2.18.0
+- [#61](https://github.com/terraform-linters/tflint-ruleset-opa/pull/61): deps: Go 1.21
+- [#62](https://github.com/terraform-linters/tflint-ruleset-opa/pull/62): Bump goreleaser/goreleaser-action from 4 to 5
+
 ## 0.3.0 (2023-07-19)
 
 ### Enhancements
