@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_deterministic_check_condition",
+        "severity": "error",
+        "link": "policies/main.rego:3"
+      },
+      "message": "deterministic check condtion is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 14,
+          "column": 17
+        },
+        "end": {
+          "line": 14,
+          "column": 27
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

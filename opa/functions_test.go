@@ -1246,6 +1246,136 @@ import {
 	}
 }
 
+func TestChecksFunc(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  string
+		schema  map[string]any
+		options map[string]string
+		want    []map[string]any
+	}{
+		{
+			name: "checks",
+			config: `
+check "health_check" {
+	data "http" "terraform_io" {
+		url = "https://www.terraform.io"
+	}
+
+	assert {
+		condition = 200 == 200
+		error_message = "${data.http.terraform_io.url} returned an unhealthy status code"
+	}
+}`,
+			schema: map[string]any{"assert": map[string]any{"condition": "bool"}},
+			want: []map[string]any{
+				{
+					"name": "health_check",
+					"config": map[string]any{
+						"assert": []map[string]any{
+							{
+								"config": map[string]any{
+									"condition": map[string]any{
+										"value":     true,
+										"unknown":   false,
+										"sensitive": false,
+										"range": map[string]any{
+											"filename": "main.tf",
+											"start": map[string]int{
+												"line":   8,
+												"column": 15,
+												"byte":   117,
+											},
+											"end": map[string]int{
+												"line":   8,
+												"column": 25,
+												"byte":   127,
+											},
+										},
+									},
+								},
+								"labels": []string(nil),
+								"decl_range": map[string]any{
+									"filename": "main.tf",
+									"start": map[string]int{
+										"line":   7,
+										"column": 2,
+										"byte":   94,
+									},
+									"end": map[string]int{
+										"line":   7,
+										"column": 8,
+										"byte":   100,
+									},
+								},
+							},
+						},
+					},
+					"decl_range": map[string]any{
+						"filename": "main.tf",
+						"start": map[string]int{
+							"line":   2,
+							"column": 1,
+							"byte":   1,
+						},
+						"end": map[string]int{
+							"line":   2,
+							"column": 21,
+							"byte":   21,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			schema, err := ast.InterfaceToValue(test.schema)
+			if err != nil {
+				t.Fatal(err)
+			}
+			options, err := ast.InterfaceToValue(test.options)
+			if err != nil {
+				t.Fatal(err)
+			}
+			config, err := ast.InterfaceToValue(map[string]string{"main.tf": test.config})
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := ast.InterfaceToValue(test.want)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			if diags.HasErrors() {
+				t.Fatal(diags)
+			}
+
+			ctx := rego.BuiltinContext{}
+			got, err := checksFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+
+			ctx = rego.BuiltinContext{}
+			got, err = mockFunction2(checksFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func TestModuleRangeFunc(t *testing.T) {
 	tests := []struct {
 		name   string
