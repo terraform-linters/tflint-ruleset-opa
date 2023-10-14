@@ -148,7 +148,80 @@ func dataSourcesFunc(runner tflint.Runner) *function3 {
 			},
 		},
 		Func: func(_ rego.BuiltinContext, dataType *ast.Term, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
-			return typedBlockFunc(dataType, schema, options, "data", runner)
+			var typeName string
+			if err := ast.As(dataType.Value, &typeName); err != nil {
+				return nil, err
+			}
+			var schemaJSON map[string]any
+			if err := ast.As(schema.Value, &schemaJSON); err != nil {
+				return nil, err
+			}
+			innerSchema, tyMap, err := jsonToSchema(schemaJSON, map[string]cty.Type{}, "schema")
+			if err != nil {
+				return nil, err
+			}
+			var optionJSON map[string]string
+			if err := ast.As(options.Value, &optionJSON); err != nil {
+				return nil, err
+			}
+			option, err := jsonToOption(optionJSON)
+			if err != nil {
+				return nil, err
+			}
+
+			content, err := runner.GetModuleContent(&hclext.BodySchema{
+				Blocks: []hclext.BlockSchema{
+					{
+						Type:       "data",
+						LabelNames: []string{"type", "name"},
+						Body:       innerSchema,
+					},
+					{
+						Type:       "check",
+						LabelNames: []string{"name"},
+						Body: &hclext.BodySchema{
+							Blocks: []hclext.BlockSchema{
+								{
+									Type:       "data",
+									LabelNames: []string{"type", "name"},
+									Body:       innerSchema,
+								},
+							},
+						},
+					},
+				},
+			}, option.AsGetModuleContentOptions())
+			if err != nil {
+				return nil, err
+			}
+
+			blocks := []*hclext.Block{}
+			for _, block := range content.Blocks {
+				switch block.Type {
+				case "data":
+					// "*" is a special character that returns all blocks
+					if typeName == block.Labels[0] || typeName == "*" {
+						blocks = append(blocks, block)
+					}
+				case "check":
+					for _, inner := range block.Body.Blocks {
+						if typeName == inner.Labels[0] || typeName == "*" {
+							blocks = append(blocks, inner)
+						}
+					}
+				}
+			}
+
+			out, err := typedBlocksToJSON(blocks, tyMap, "schema", runner)
+			if err != nil {
+				return nil, err
+			}
+			v, err := ast.InterfaceToValue(out)
+			if err != nil {
+				return nil, err
+			}
+
+			return ast.NewTerm(v), nil
 		},
 	}
 }
