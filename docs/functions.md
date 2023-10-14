@@ -57,7 +57,7 @@ terraform.resources("aws_instance", {"instance_type": "string"}, {})
     "type": "aws_instance",
     "name": "main",
     "config": {
-      "bucket": {
+      "instance_type": {
         "value": "t2.micro",
         "unknown": false,
         "sensitive": false,
