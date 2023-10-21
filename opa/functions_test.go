@@ -350,6 +350,56 @@ data "aws_ami" "main" {
 				},
 			},
 		},
+		{
+			name: "scoped data source",
+			config: `
+check "scoped" {
+	data "aws_ami" "main" {
+		owners = ["self"]
+	}
+}`,
+			dataType: "aws_ami",
+			schema:   map[string]any{"owners": "list(string)"},
+			want: []map[string]any{
+				{
+					"type": "aws_ami",
+					"name": "main",
+					"config": map[string]any{
+						"owners": map[string]any{
+							"value":     []string{"self"},
+							"unknown":   false,
+							"sensitive": false,
+							"range": map[string]any{
+								"filename": "main.tf",
+								"start": map[string]int{
+									"line":   4,
+									"column": 12,
+									"byte":   54,
+								},
+								"end": map[string]int{
+									"line":   4,
+									"column": 20,
+									"byte":   62,
+								},
+							},
+						},
+					},
+					"decl_range": map[string]any{
+						"filename": "main.tf",
+						"start": map[string]int{
+							"line":   3,
+							"column": 2,
+							"byte":   19,
+						},
+						"end": map[string]int{
+							"line":   3,
+							"column": 23,
+							"byte":   40,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, test := range tests {
