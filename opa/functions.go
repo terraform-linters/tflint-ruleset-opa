@@ -27,6 +27,8 @@ func Functions(runner tflint.Runner) []func(*rego.Rego) {
 		outputsFunc(runner).asOption(),
 		localsFunc(runner).asOption(),
 		movedBlocksFunc(runner).asOption(),
+		importsFunc(runner).asOption(),
+		checksFunc(runner).asOption(),
 		moduleRangeFunc(runner).asOption(),
 		issueFunc().asOption(),
 	}
@@ -44,6 +46,8 @@ func TesterFunctions(runner tflint.Runner) []*tester.Builtin {
 		outputsFunc(runner).asTester(),
 		localsFunc(runner).asTester(),
 		movedBlocksFunc(runner).asTester(),
+		importsFunc(runner).asTester(),
+		checksFunc(runner).asTester(),
 		moduleRangeFunc(runner).asTester(),
 		issueFunc().asTester(),
 	}
@@ -63,6 +67,8 @@ func MockFunctions() []func(*rego.Rego) {
 		mockFunction2(outputsFunc).asOption(),
 		mockFunction1(localsFunc).asOption(),
 		mockFunction2(movedBlocksFunc).asOption(),
+		mockFunction2(importsFunc).asOption(),
+		mockFunction2(checksFunc).asOption(),
 	}
 }
 
@@ -78,6 +84,8 @@ func TesterMockFunctions() []*tester.Builtin {
 		mockFunction2(outputsFunc).asTester(),
 		mockFunction1(localsFunc).asTester(),
 		mockFunction2(movedBlocksFunc).asTester(),
+		mockFunction2(importsFunc).asTester(),
+		mockFunction2(checksFunc).asTester(),
 	}
 }
 
@@ -386,6 +394,64 @@ func movedBlocksFunc(runner tflint.Runner) *function2 {
 		},
 		Func: func(_ rego.BuiltinContext, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
 			return blockFunc(schema, options, "moved", runner)
+		},
+	}
+}
+
+// terraform.imports: blocks := terraform.imports(schema, options)
+//
+// Returns Terraform import blocks.
+//
+//	schema  (schema)  schema for attributes referenced in rules.
+//	options (options) options to change the retrieve/evaluate behavior.
+//
+// Returns:
+//
+//	blocks (array[block]) Terraform "import" blocks
+func importsFunc(runner tflint.Runner) *function2 {
+	return &function2{
+		function: function{
+			Decl: &rego.Function{
+				Name: "terraform.imports",
+				Decl: types.NewFunction(
+					types.Args(schemaTy, optionsTy),
+					types.NewArray(nil, blockTy),
+				),
+				Memoize:          true,
+				Nondeterministic: true,
+			},
+		},
+		Func: func(_ rego.BuiltinContext, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
+			return blockFunc(schema, options, "import", runner)
+		},
+	}
+}
+
+// terraform.checks: blocks := terraform.checks(schema, options)
+//
+// Returns Terraform check blocks.
+//
+//	schema  (schema)  schema for attributes referenced in rules.
+//	options (options) options to change the retrieve/evaluate behavior.
+//
+// Returns:
+//
+//	blocks (array[block]) Terraform "check" blocks
+func checksFunc(runner tflint.Runner) *function2 {
+	return &function2{
+		function: function{
+			Decl: &rego.Function{
+				Name: "terraform.checks",
+				Decl: types.NewFunction(
+					types.Args(schemaTy, optionsTy),
+					types.NewArray(nil, blockTy),
+				),
+				Memoize:          true,
+				Nondeterministic: true,
+			},
+		},
+		Func: func(_ rego.BuiltinContext, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
+			return namedBlockFunc(schema, options, "check", runner)
 		},
 	}
 }

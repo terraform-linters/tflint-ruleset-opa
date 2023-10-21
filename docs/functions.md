@@ -566,6 +566,111 @@ terraform.moved_blocks({"from": "any"}, {})
 ]
 ```
 
+## `terraform.imports`
+
+```rego
+blocks := terraform.imports(schema, options)
+```
+
+Returns Terraform imports blocks.
+
+- `schema` (schema): schema for attributes referenced in rules.
+- `options` (object[string: string]): options to change the retrieve/evaluate behavior.
+
+Returns:
+
+- `blocks` (array[object<config: body, decl_range: range>]): Terraform "import" blocks.
+
+The `schema` and `options` are equivalent to the arguments of the `terraform.resources` function.
+
+Examples:
+
+```hcl
+import {
+  to = aws_instance.example
+  id = "i-abcd1234"
+}
+```
+
+```rego
+terraform.imports({"id": "string"}, {})
+```
+
+```json
+[
+  {
+    "config": {
+      "id": {
+        "value": "i-abcd1234",
+        "unknown": false,
+        "sensitive": false,
+        "range": {...}
+      }
+    },
+    "decl_range": {...}
+  }
+]
+```
+
+## `terraform.checks`
+
+```rego
+blocks := terraform.checks(schema, options)
+```
+
+Returns Terraform check blocks.
+
+- `schema` (schema): schema for attributes referenced in rules.
+- `options` (object[string: string]): options to change the retrieve/evaluate behavior.
+
+Returns:
+
+- `blocks` (array[object<config: body, decl_range: range>]): Terraform "check" blocks.
+
+The `schema` and `options` are equivalent to the arguments of the `terraform.resources` function.
+
+Examples:
+
+```hcl
+check "health_check" {
+  data "http" "terraform_io" {
+    url = "https://www.terraform.io"
+  }
+
+  assert {
+    condition = data.http.terraform_io.status_code == 200
+    error_message = "${data.http.terraform_io.url} returned an unhealthy status code"
+  }
+}
+```
+
+```rego
+terraform.checks({"assert": {"condition": "bool"}}, {})
+```
+
+```json
+[
+  {
+    "config": {
+      "assert": [
+        {
+          "config": {
+            "condition": {
+              "unknown": true,
+              "sensitive": false,
+              "range": {...}
+            }
+          },
+          "labels": null,
+          "decl_range": {...}
+        }
+      ]
+    },
+    "decl_range": {...}
+  }
+]
+```
+
 ## `terraform.module_range`
 
 ```rego

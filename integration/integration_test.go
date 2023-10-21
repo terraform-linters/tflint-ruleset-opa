@@ -203,6 +203,28 @@ func TestIntegration(t *testing.T) {
 			dir:     "moved",
 			test:    true,
 		},
+		{
+			name:    "imports",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "imports",
+		},
+		{
+			name:    "imports (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "imports",
+			test:    true,
+		},
+		{
+			name:    "checks",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "checks",
+		},
+		{
+			name:    "checks (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "checks",
+			test:    true,
+		},
 	}
 
 	dir, _ := os.Getwd()
