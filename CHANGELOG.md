@@ -1,3 +1,23 @@
+## 0.5.0 (2023-12-27)
+
+### Enhancements
+
+- [#67](https://github.com/terraform-linters/tflint-ruleset-opa/pull/67): Add support for scoped data sources
+- [#69](https://github.com/terraform-linters/tflint-ruleset-opa/pull/69): Add `terraform.imports` and `terraform.checks` functions
+- [#71](https://github.com/terraform-linters/tflint-ruleset-opa/pull/71) [#74](https://github.com/terraform-linters/tflint-ruleset-opa/pull/74) [#75](https://github.com/terraform-linters/tflint-ruleset-opa/pull/75) [#79](https://github.com/terraform-linters/tflint-ruleset-opa/pull/79): Bump github.com/open-policy-agent/opa from 0.57.0 to 0.60.0
+
+### Chores
+
+- [#64](https://github.com/terraform-linters/tflint-ruleset-opa/pull/64) [#72](https://github.com/terraform-linters/tflint-ruleset-opa/pull/72): Bump github.com/hashicorp/hcl/v2 from 2.18.0 to 2.19.1
+- [#65](https://github.com/terraform-linters/tflint-ruleset-opa/pull/65): Bump github.com/zclconf/go-cty from 1.14.0 to 1.14.1
+- [#66](https://github.com/terraform-linters/tflint-ruleset-opa/pull/66): Bump golang.org/x/net from 0.15.0 to 0.17.0
+- [#68](https://github.com/terraform-linters/tflint-ruleset-opa/pull/68): Fix incorrect examples of `terraform.resources`
+- [#70](https://github.com/terraform-linters/tflint-ruleset-opa/pull/70): Bump github.com/google/go-cmp from 0.5.9 to 0.6.0
+- [#73](https://github.com/terraform-linters/tflint-ruleset-opa/pull/73): Bump google.golang.org/grpc from 1.58.2 to 1.58.3
+- [#76](https://github.com/terraform-linters/tflint-ruleset-opa/pull/76): Bump actions/setup-go from 4 to 5
+- [#77](https://github.com/terraform-linters/tflint-ruleset-opa/pull/77) [#78](https://github.com/terraform-linters/tflint-ruleset-opa/pull/78): Bump github.com/hashicorp/go-hclog from 1.5.0 to 1.6.2
+- [#80](https://github.com/terraform-linters/tflint-ruleset-opa/pull/80): Fix E2E tests failing with TFLint v0.50
+
 ## 0.4.0 (2023-10-09)
 
 ### Enhancements
