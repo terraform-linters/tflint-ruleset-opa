@@ -1,1 +1,1 @@
-module "aws_instance" {}
+variable "instance_type" {}
