@@ -671,6 +671,54 @@ terraform.checks({"assert": {"condition": "bool"}}, {})
 ]
 ```
 
+## `terraform.removed_blocks`
+
+```rego
+blocks := terraform.removed_blocks(schema, options)
+```
+
+Returns Terraform removed blocks.
+
+- `schema` (schema): schema for attributes referenced in rules.
+- `options` (object[string: string]): options to change the retrieve/evaluate behavior.
+
+Returns:
+
+- `blocks` (array[object<config: body, decl_range: range>]): Terraform "removed" blocks.
+
+The `schema` and `options` are equivalent to the arguments of the `terraform.resources` function.
+
+Examples:
+
+```hcl
+removed {
+  from = aws_instance.example
+
+  lifecycle {
+    destroy = false
+  }
+}
+```
+
+```rego
+terraform.removed_blocks({"from": "any"}, {})
+```
+
+```json
+[
+  {
+    "config": {
+      "from": {
+        "unknown": true,
+        "sensitive": false,
+        "range": {...}
+      }
+    },
+    "decl_range": {...}
+  }
+]
+```
+
 ## `terraform.module_range`
 
 ```rego

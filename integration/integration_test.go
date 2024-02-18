@@ -225,6 +225,17 @@ func TestIntegration(t *testing.T) {
 			dir:     "checks",
 			test:    true,
 		},
+		{
+			name:    "removed blocks",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "removed",
+		},
+		{
+			name:    "removed blocks (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "removed",
+			test:    true,
+		},
 	}
 
 	dir, _ := os.Getwd()
