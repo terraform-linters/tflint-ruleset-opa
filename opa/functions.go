@@ -29,6 +29,7 @@ func Functions(runner tflint.Runner) []func(*rego.Rego) {
 		movedBlocksFunc(runner).asOption(),
 		importsFunc(runner).asOption(),
 		checksFunc(runner).asOption(),
+		removedBlocksFunc(runner).asOption(),
 		moduleRangeFunc(runner).asOption(),
 		issueFunc().asOption(),
 	}
@@ -48,6 +49,7 @@ func TesterFunctions(runner tflint.Runner) []*tester.Builtin {
 		movedBlocksFunc(runner).asTester(),
 		importsFunc(runner).asTester(),
 		checksFunc(runner).asTester(),
+		removedBlocksFunc(runner).asTester(),
 		moduleRangeFunc(runner).asTester(),
 		issueFunc().asTester(),
 	}
@@ -69,6 +71,7 @@ func MockFunctions() []func(*rego.Rego) {
 		mockFunction2(movedBlocksFunc).asOption(),
 		mockFunction2(importsFunc).asOption(),
 		mockFunction2(checksFunc).asOption(),
+		mockFunction2(removedBlocksFunc).asOption(),
 	}
 }
 
@@ -86,6 +89,7 @@ func TesterMockFunctions() []*tester.Builtin {
 		mockFunction2(movedBlocksFunc).asTester(),
 		mockFunction2(importsFunc).asTester(),
 		mockFunction2(checksFunc).asTester(),
+		mockFunction2(removedBlocksFunc).asTester(),
 	}
 }
 
@@ -525,6 +529,35 @@ func checksFunc(runner tflint.Runner) *function2 {
 		},
 		Func: func(_ rego.BuiltinContext, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
 			return namedBlockFunc(schema, options, "check", runner)
+		},
+	}
+}
+
+// terraform.removed_blocks: blocks := terraform.removed_blocks(schema, options)
+//
+// Returns Terraform removed blocks.
+//
+//	schema  (schema)  schema for attributes referenced in rules.
+//	options (options) options to change the retrieve/evaluate behavior.
+//
+// Returns:
+//
+//	blocks (array[block]) Terraform "removed" blocks
+func removedBlocksFunc(runner tflint.Runner) *function2 {
+	return &function2{
+		function: function{
+			Decl: &rego.Function{
+				Name: "terraform.removed_blocks",
+				Decl: types.NewFunction(
+					types.Args(schemaTy, optionsTy),
+					types.NewArray(nil, blockTy),
+				),
+				Memoize:          true,
+				Nondeterministic: true,
+			},
+		},
+		Func: func(_ rego.BuiltinContext, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
+			return blockFunc(schema, options, "removed", runner)
 		},
 	}
 }

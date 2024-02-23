@@ -1426,6 +1426,109 @@ check "health_check" {
 	}
 }
 
+func TestRemovedBlocksFunc(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  string
+		schema  map[string]any
+		options map[string]string
+		want    []map[string]any
+	}{
+		{
+			name: "removed block",
+			config: `
+removed {
+	from = var.foo
+}
+
+variable "foo" {}`,
+			schema: map[string]any{"from": "any"},
+			want: []map[string]any{
+				{
+					"config": map[string]any{
+						"from": map[string]any{
+							"unknown":   true,
+							"sensitive": false,
+							"range": map[string]any{
+								"filename": "main.tf",
+								"start": map[string]int{
+									"line":   3,
+									"column": 9,
+									"byte":   19,
+								},
+								"end": map[string]int{
+									"line":   3,
+									"column": 16,
+									"byte":   26,
+								},
+							},
+						},
+					},
+					"decl_range": map[string]any{
+						"filename": "main.tf",
+						"start": map[string]int{
+							"line":   2,
+							"column": 1,
+							"byte":   1,
+						},
+						"end": map[string]int{
+							"line":   2,
+							"column": 8,
+							"byte":   8,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			schema, err := ast.InterfaceToValue(test.schema)
+			if err != nil {
+				t.Fatal(err)
+			}
+			options, err := ast.InterfaceToValue(test.options)
+			if err != nil {
+				t.Fatal(err)
+			}
+			config, err := ast.InterfaceToValue(map[string]string{"main.tf": test.config})
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := ast.InterfaceToValue(test.want)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			if diags.HasErrors() {
+				t.Fatal(diags)
+			}
+
+			ctx := rego.BuiltinContext{}
+			got, err := removedBlocksFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+
+			ctx = rego.BuiltinContext{}
+			got, err = mockFunction2(removedBlocksFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func TestModuleRangeFunc(t *testing.T) {
 	tests := []struct {
 		name   string
