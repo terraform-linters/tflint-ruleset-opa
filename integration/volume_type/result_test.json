@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_warn_gp3_volume_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:19"
+        "link": "policies/main_test.rego:20"
       },
       "message": "test failed",
       "range": {
@@ -24,7 +24,7 @@
       "rule": {
         "name": "opa_test_warn_gp3_volume_unknown_dynamic_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:46"
+        "link": "policies/main_test.rego:47"
       },
       "message": "test failed",
       "range": {

@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_not_tagged_instance_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:19"
+        "link": "policies/main_test.rego:20"
       },
       "message": "test failed",
       "range": {
@@ -24,7 +24,7 @@
       "rule": {
         "name": "opa_test_deny_not_tagged_instance_without_tags_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:37"
+        "link": "policies/main_test.rego:38"
       },
       "message": "test failed",
       "range": {
@@ -44,7 +44,7 @@
       "rule": {
         "name": "opa_test_deny_not_tagged_instance_null_tags_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:56"
+        "link": "policies/main_test.rego:57"
       },
       "message": "test failed",
       "range": {

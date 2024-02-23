@@ -1,8 +1,10 @@
 package tflint
 
-deny_no_outputs[issue] {
-  outputs := terraform.outputs({}, {})
-  count(outputs) == 0
+import rego.v1
 
-  issue := tflint.issue("module must expose outputs", terraform.module_range())
+deny_no_outputs contains issue if {
+	outputs := terraform.outputs({}, {})
+	count(outputs) == 0
+
+	issue := tflint.issue("module must expose outputs", terraform.module_range())
 }

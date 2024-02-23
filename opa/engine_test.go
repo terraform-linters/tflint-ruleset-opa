@@ -26,7 +26,9 @@ func TestRunQuery(t *testing.T) {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	issue := tflint.issue("example issue", terraform.module_range())
 }`,
 			},
@@ -38,7 +40,9 @@ deny_test[issue] {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	issue := tflint.issue(sprintf("data.foo is %s", [data.foo]), terraform.module_range())
 }`,
 				"data.yaml": `foo: bar`,
@@ -51,7 +55,9 @@ deny_test[issue] {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	resources := terraform.resources("aws_instance", {"instance_type": "string"}, {})
 	instance_type := resources[_].config.instance_type
 
@@ -74,7 +80,9 @@ resource "aws_instance" "main" {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	issue := tflint.issue(sprintf("OPA version: %s", [opa.runtime().version]), terraform.module_range())
 }`,
 			},
@@ -86,12 +94,14 @@ deny_test[issue] {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	unused := "foo"
 	issue := tflint.issue("example issue", terraform.module_range())
 }`,
 			},
-			err: "1 error occurred: main.rego:5: rego_compile_error: assigned var unused unused",
+			err: "1 error occurred: main.rego:7: rego_compile_error: assigned var unused unused",
 		},
 		{
 			name: "builtin errors",
@@ -99,13 +109,15 @@ deny_test[issue] {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	resources := terraform.resources("*", {}, {"unknown": "option"})
 	resource := resources[_]
 	issue := tflint.issue("example issue", resource.decl_range)
 }`,
 			},
-			err: "main.rego:5: eval_builtin_error: terraform.resources: unknown option: unknown",
+			err: "main.rego:7: eval_builtin_error: terraform.resources: unknown option: unknown",
 		},
 		{
 			name: "invalid issue",
@@ -113,7 +125,9 @@ deny_test[issue] {
 				"main.rego": `
 package tflint
 
-deny_test {
+import rego.v1
+
+deny_test if {
 	"foo" == "foo"
 }`,
 			},
@@ -175,7 +189,9 @@ func TestRunTest(t *testing.T) {
 				"main_test.rego": `
 package tflint
 
-test_deny {
+import rego.v1
+
+test_deny if {
 	"foo" == "bar"
 }`,
 			},
@@ -187,7 +203,9 @@ test_deny {
 				"main_test.rego": `
 package tflint
 
-test_deny {
+import rego.v1
+
+test_deny if {
 	"foo" == data.foo
 }`,
 				"data.yaml": `foo: bar`,
@@ -200,7 +218,9 @@ test_deny {
 				"main.rego": `
 package tflint
 
-deny_test[issue] {
+import rego.v1
+
+deny_test contains issue if {
 	resources := terraform.resources("aws_instance", {"instance_type": "string"}, {})
 	instance_type := resources[_].config.instance_type
 
@@ -211,12 +231,14 @@ deny_test[issue] {
 				"main_test.rego": `
 package tflint
 
+import rego.v1
+
 mock_resources(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": ` + "`" + `
 resource "aws_instance" "main" {
 	instance_type = "t1.micro"
 }` + "`" + `})
 
-test_deny {
+test_deny if {
 	count(deny_test) == 0 with terraform.resources as mock_resources
 }
 				`,
@@ -229,7 +251,9 @@ test_deny {
 				"main_test.rego": `
 package tflint
 
-test_deny {
+import rego.v1
+
+test_deny if {
 	"foo" == opa.runtime().version
 }`,
 			},

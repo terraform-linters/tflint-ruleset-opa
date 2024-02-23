@@ -1,8 +1,10 @@
 package tflint
 
-deny_too_many_locals[issue] {
-  locals := terraform.locals({})
-  count(locals) > 5
+import rego.v1
 
-  issue := tflint.issue("too many local values", terraform.module_range())
+deny_too_many_locals contains issue if {
+	locals := terraform.locals({})
+	count(locals) > 5
+
+	issue := tflint.issue("too many local values", terraform.module_range())
 }

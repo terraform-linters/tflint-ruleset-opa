@@ -17,6 +17,6 @@ Error: Declaring resources is not allowed. Use modules instead. (opa_deny_resour
   on main.tf line 1:
    1: resource "aws_instance" "main" {
 
-Reference: .tflint.d/policies/module.rego:3
+Reference: .tflint.d/policies/module.rego:5
 
 ```

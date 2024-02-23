@@ -69,7 +69,9 @@ func TestCheck_deny_instance_type(t *testing.T) {
 	policy := `
 package tflint
 
-deny_instance_type[issue] {
+import rego.v1
+
+deny_instance_type contains issue if {
 	resources := terraform.resources("aws_instance", {"instance_type": "string"}, {})
 	instance_type := resources[_].config.instance_type
 
@@ -136,7 +138,9 @@ func TestCheck_deny_non_snake_case(t *testing.T) {
 	policy := `
 package tflint
 
-deny_not_snake_case[issue] {
+import rego.v1
+
+deny_not_snake_case contains issue if {
 	resources := terraform.resources("*", {}, {})
 	not regex.match("^[a-z][a-z0-9]*(_[a-z0-9]+)*$", resources[i].name)
 
@@ -201,7 +205,9 @@ func TestCheck_warn_standard_volume(t *testing.T) {
 	policy := `
 package tflint
 
-warn_standard_volume[issue] {
+import rego.v1
+
+warn_standard_volume contains issue if {
 	resources := terraform.resources("aws_instance", {"ebs_block_device": {"volume_type": "string"}}, {})
 	volume_type := resources[_].config.ebs_block_device[_].config.volume_type
 	volume_type.value == "standard"
@@ -271,7 +277,9 @@ func TestCheck_deny_large_volume(t *testing.T) {
 	policy := `
 package tflint
 
-deny_large_volume[issue] {
+import rego.v1
+
+deny_large_volume contains issue if {
 	resources := terraform.resources("aws_instance", {"ebs_block_device": {"volume_size": "number"}}, {})
 	volume_size := resources[_].config.ebs_block_device[_].config.volume_size
 	volume_size.value > 30
@@ -367,17 +375,16 @@ func TestCheck_deny_untagged_instance(t *testing.T) {
 	policy := `
 package tflint
 
-contains(array, elem) {
-	array[_] = elem
+import rego.v1
+
+is_not_tagged(config) if {
+	not "Environment" in object.keys(config.tags.value)
 }
-is_not_tagged(config) {
-	not contains(object.keys(config.tags.value), "Environment")
-}
-is_not_tagged(config) {
-	not contains(object.keys(config), "tags")
+is_not_tagged(config) if {
+	not "tags" in object.keys(config)
 }
 
-deny_untagged_instance[issue] {
+deny_untagged_instance contains issue if {
 	resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
 	resource := resources[_]
 
@@ -461,7 +468,9 @@ func TestCheck_deny_resource(t *testing.T) {
 	policy := `
 package tflint
 
-deny_resource[issue] {
+import rego.v1
+
+deny_resource contains issue if {
 	resources := terraform.resources("*", {}, {})
 	count(resources) > 0
 
@@ -526,7 +535,9 @@ func TestCheck_deny_no_resource(t *testing.T) {
 	policy := `
 package tflint
 
-deny_no_resource[issue] {
+import rego.v1
+
+deny_no_resource contains issue if {
 	resources := terraform.resources("*", {}, {})
 	count(resources) == 0
 
@@ -587,7 +598,9 @@ func TestCheck_deny_dynamic_block(t *testing.T) {
 	policy := `
 package tflint
 
-deny_dynamic_block[issue] {
+import rego.v1
+
+deny_dynamic_block contains issue if {
 	resources := terraform.resources("*", {"dynamic": {"__labels": ["name"]}}, {"expand_mode": "none"})
 	dynamic := resources[_].config.dynamic[_]
   

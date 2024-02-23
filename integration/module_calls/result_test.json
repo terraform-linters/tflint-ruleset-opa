@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_remote_source_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:17"
+        "link": "policies/main_test.rego:18"
       },
       "message": "test failed",
       "range": {

@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_deny_deterministic_check_condition",
         "severity": "error",
-        "link": "policies/main.rego:3"
+        "link": "policies/main.rego:5"
       },
       "message": "deterministic check condtion is not allowed",
       "range": {

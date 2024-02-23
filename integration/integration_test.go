@@ -236,6 +236,17 @@ func TestIntegration(t *testing.T) {
 			dir:     "removed",
 			test:    true,
 		},
+		{
+			name:    "legacy Rego syntax",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "legacy_rego_syntax",
+		},
+		{
+			name:    "legacy Rego syntax (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "legacy_rego_syntax",
+			test:    true,
+		},
 	}
 
 	dir, _ := os.Getwd()

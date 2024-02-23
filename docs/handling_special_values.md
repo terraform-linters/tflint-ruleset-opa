@@ -52,24 +52,24 @@ Notice that `value` does not exist and `unknown` is true. Neither of the followi
 
 ```rego
 package tflint
-import future.keywords.if
-import future.keywords.contains
+
+import rego.v1
 
 bucket_names contains name if {
-  buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
-  name := buckets[_].config.bucket
+	buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
+	name := buckets[_].config.bucket
 }
 
-deny_invalid_s3_bucket_name[issue] {
-  not startswith(bucket_names[i].value, "example-com-")
+deny_invalid_s3_bucket_name contains issue if {
+	not startswith(bucket_names[i].value, "example-com-")
 
-  issue := tflint.issue(`Bucket names should always start with "example-com-"`, bucket_names[i].range)
+	issue := tflint.issue(`Bucket names should always start with "example-com-"`, bucket_names[i].range)
 }
 
-deny_valid_s3_bucket_name[issue] {
-  startswith(bucket_names[i].value, "example-com-")
+deny_valid_s3_bucket_name contains issue if {
+	startswith(bucket_names[i].value, "example-com-")
 
-  issue := tflint.issue(`Bucket names should not always start with "example-com-"`, bucket_names[i].range)
+	issue := tflint.issue(`Bucket names should not always start with "example-com-"`, bucket_names[i].range)
 }
 ```
 
@@ -77,24 +77,24 @@ This behavior is useful for detecting erroneous values, but inconvenient if you 
 
 ```rego
 package tflint
-import future.keywords.if
-import future.keywords.contains
+
+import rego.v1
 
 bucket_names contains name if {
-  buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
-  name := buckets[_].config.bucket
+	buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
+	name := buckets[_].config.bucket
 }
 
-deny_invalid_s3_bucket_name[issue] {
-  bucket_names[i].unknown
+deny_invalid_s3_bucket_name contains issue if {
+	bucket_names[i].unknown
 
-  issue := tflint.issue(`Dynamic value is not allowed in bucket name`, bucket_names[i].range)
+	issue := tflint.issue(`Dynamic value is not allowed in bucket name`, bucket_names[i].range)
 }
 
-deny_invalid_s3_bucket_name[issue] {
-  not startswith(bucket_names[i].value, "example-com-")
+deny_invalid_s3_bucket_name contains issue if {
+	not startswith(bucket_names[i].value, "example-com-")
 
-  issue := tflint.issue(`Bucket names should always start with "example-com-"`, bucket_names[i].range)
+	issue := tflint.issue(`Bucket names should always start with "example-com-"`, bucket_names[i].range)
 }
 ```
 
@@ -135,28 +135,30 @@ To find this out, add a policy like the following:
 ```rego
 package tflint
 
-deny_invalid_s3_bucket_name[issue] {
-  buckets := terraform.resources("aws_s3_bucket", {"count": "number"}, {"expand_mode": "none"})
-  count := buckets[_].config.count
-  count.unknown
+import rego.v1
 
-  issue := tflint.issue(`Dynamic value is not allowed in count`, count.range)
+deny_invalid_s3_bucket_name contains issue if {
+	buckets := terraform.resources("aws_s3_bucket", {"count": "number"}, {"expand_mode": "none"})
+	count := buckets[_].config.count
+	count.unknown
+
+	issue := tflint.issue(`Dynamic value is not allowed in count`, count.range)
 }
 
-deny_invalid_s3_bucket_name[issue] {
-  buckets := terraform.resources("aws_s3_bucket", {"for_each": "any"}, {"expand_mode": "none"})
-  for_each := buckets[_].config.for_each
-  for_each.unknown
+deny_invalid_s3_bucket_name contains issue if {
+	buckets := terraform.resources("aws_s3_bucket", {"for_each": "any"}, {"expand_mode": "none"})
+	for_each := buckets[_].config.for_each
+	for_each.unknown
 
-  issue := tflint.issue(`Dynamic value is not allowed in for_each`, for_each.range)
+	issue := tflint.issue(`Dynamic value is not allowed in for_each`, for_each.range)
 }
 
-deny_invalid_s3_bucket_name[issue] {
-  buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
-  bucket := buckets[_].config.bucket
-  not startswith(bucket.value, "example-com-")
+deny_invalid_s3_bucket_name contains issue if {
+	buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
+	bucket := buckets[_].config.bucket
+	not startswith(bucket.value, "example-com-")
 
-  issue := tflint.issue(`Bucket names should always start with "example-com-"`, bucket.range)
+	issue := tflint.issue(`Bucket names should always start with "example-com-"`, bucket.range)
 }
 ```
 
@@ -169,7 +171,7 @@ Error: Dynamic value is not allowed in count (opa_deny_invalid_s3_bucket_name)
   on main.tf line 7:
    7:   count = var.bucket_count # => unknown value
 
-Reference: .tflint.d/policies/main.rego:3
+Reference: .tflint.d/policies/main.rego:5
 
 ```
 
@@ -200,20 +202,22 @@ To find this out, add a policy like the following:
 ```rego
 package tflint
 
-deny_large_volume[issue] {
-  instances := terraform.resources("aws_instance", {"dynamic": {"__labels": ["type"], "for_each": "any"}}, {"expand_mode": "none"})
-  for_each := instances[_].config.dynamic[_].config.for_each
-  for_each.unknown
+import rego.v1
 
-  issue := tflint.issue("Dynamic value is not allowed in for_each", for_each.range)
+deny_large_volume contains issue if {
+	instances := terraform.resources("aws_instance", {"dynamic": {"__labels": ["type"], "for_each": "any"}}, {"expand_mode": "none"})
+	for_each := instances[_].config.dynamic[_].config.for_each
+	for_each.unknown
+
+	issue := tflint.issue("Dynamic value is not allowed in for_each", for_each.range)
 }
 
-deny_large_volume[issue] {
-  instances := terraform.resources("aws_instance", {"ebs_block_device": {"volume_size": "number"}}, {})
-  size := instances[_].config.ebs_block_device[_].config.volume_size
-  size.value > 30
+deny_large_volume contains issue if {
+	instances := terraform.resources("aws_instance", {"ebs_block_device": {"volume_size": "number"}}, {})
+	size := instances[_].config.ebs_block_device[_].config.volume_size
+	size.value > 30
 
-  issue := tflint.issue("Volume size must be 30GB or less", size.range)
+	issue := tflint.issue("Volume size must be 30GB or less", size.range)
 }
 ```
 
@@ -226,7 +230,7 @@ Error: Dynamic value is not allowed in for_each (opa_deny_large_volume)
   on main.tf line 5:
    5:     for_each = var.block_devices # => unknown value
 
-Reference: .tflint.d/policies/main.rego:3
+Reference: .tflint.d/policies/main.rego:5
 
 ```
 
@@ -265,19 +269,14 @@ Imagine a policy that detects resources that don't have a tag like this:
 ```rego
 package tflint
 
-contains(array, elem) {
-  array[_] = elem
-}
-is_not_tagged(config) {
-  not contains(object.keys(config.tags.value), "Environment")
-}
+import rego.v1
 
-deny_not_tagged_instance[issue] {
-  resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
-  resource := resources[_]
-  not contains(object.keys(resource.config.tags.value), "Environment")
+deny_not_tagged_instance contains issue if {
+	resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
+	resource := resources[_]
+	not "Environment" in object.keys(resource.config.tags.value)
 
-  issue := tflint.issue("instance should be tagged with Environment", resource.decl_range)
+	issue := tflint.issue("instance should be tagged with Environment", resource.decl_range)
 }
 ```
 
@@ -298,7 +297,7 @@ Error: instance should be tagged with Environment (opa_deny_not_tagged_instance)
   on main.tf line 1:
    1: resource "aws_instance" "main" {
 
-Reference: .tflint.d/policies/main.rego:10
+Reference: .tflint.d/policies/main.rego:5
 
 ```
 
@@ -306,7 +305,7 @@ But it doesn't work for null:
 
 ```console
 $ tflint
-Failed to check ruleset; Failed to check `opa_deny_not_tagged_instance` rule: .tflint.d/policies/main.rego:13: eval_type_error: object.keys: operand 1 must be object but got null
+Failed to check ruleset; Failed to check `opa_deny_not_tagged_instance` rule: .tflint.d/policies/main.rego:8: eval_type_error: object.keys: operand 1 must be object but got null
 ```
 
 Notice that `object.keys` returns an error in the example above, but it may be ignored. To find this out, fix the policy like the following:
@@ -314,23 +313,23 @@ Notice that `object.keys` returns an error in the example above, but it may be i
 ```rego
 package tflint
 
-contains(array, elem) {
-  array[_] = elem
-}
-is_not_tagged(tags) {
-  is_null(tags)
-}
-is_not_tagged(tags) {
-  not is_null(tags)
-  not contains(object.keys(tags), "Environment")
+import rego.v1
+
+is_not_tagged(tags) if {
+	is_null(tags)
 }
 
-deny_not_tagged_instance[issue] {
-  resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
-  resource := resources[_]
-  is_not_tagged(resource.config.tags.value)
+is_not_tagged(tags) if {
+	not is_null(tags)
+	not "Environment" in object.keys(tags)
+}
 
-  issue := tflint.issue("instance should be tagged with Environment", resource.decl_range)
+deny_not_tagged_instance contains issue if {
+	resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
+	resource := resources[_]
+	is_not_tagged(resource.config.tags.value)
+
+	issue := tflint.issue("instance should be tagged with Environment", resource.decl_range)
 }
 ```
 
@@ -363,25 +362,26 @@ To find this out, fix the policy like the following:
 ```rego
 package tflint
 
-contains(array, elem) {
-  array[_] = elem
-}
-is_not_tagged(config) {
-  is_null(config.tags.value)
-}
-is_not_tagged(config) {
-  not is_null(config.tags.value)
-  not contains(object.keys(config.tags.value), "Environment")
-}
-is_not_tagged(config) {
-  not contains(object.keys(config), "tags")
+import rego.v1
+
+is_not_tagged(config) if {
+	is_null(config.tags.value)
 }
 
-deny_not_tagged_instance[issue] {
-  resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
-  resource := resources[_]
-  is_not_tagged(resource.config)
+is_not_tagged(config) if {
+	not is_null(config.tags.value)
+	not "Environment" in object.keys(config.tags.value)
+}
 
-  issue := tflint.issue("instance should be tagged with Environment", resource.decl_range)
+is_not_tagged(config) if {
+	not "tags" in object.keys(config)
+}
+
+deny_not_tagged_instance contains issue if {
+	resources := terraform.resources("aws_instance", {"tags": "map(string)"}, {})
+	resource := resources[_]
+	is_not_tagged(resource.config)
+
+	issue := tflint.issue("instance should be tagged with Environment", resource.decl_range)
 }
 ```

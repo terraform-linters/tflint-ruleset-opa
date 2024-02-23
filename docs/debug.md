@@ -15,12 +15,14 @@ resource "aws_instance" "main" {
 ```rego
 package tflint
 
-deny_invalid_instance_type[issue] {
-  instances := terraform.resources("aws_instance", {"instance_type": "string"}, {})
-  print(instances)
-  instances[_].config.type.value == "t2.micro" # typo: type -> instance_type
+import rego.v1
 
-  issue := tflint.issue("t2.micro is not allowed", instances[_].config.instance_type.range)
+deny_invalid_instance_type contains issue if {
+	instances := terraform.resources("aws_instance", {"instance_type": "string"}, {})
+	print(instances)
+	instances[_].config.type.value == "t2.micro" # typo: type -> instance_type
+
+	issue := tflint.issue("t2.micro is not allowed", instances[_].config.instance_type.range)
 }
 ```
 
@@ -39,12 +41,14 @@ The `trace` function prints a `note` to the trace. Tracing can be enabled by set
 ```rego
 package tflint
 
-deny_invalid_instance_type[issue] {
-  instances := terraform.resources("aws_instance", {"instance_type": "string"}, {})
-  trace("after fetch")
-  instances[_].config.type.value == "t2.micro"
+import rego.v1
 
-  issue := tflint.issue("t2.micro is not allowed", instances[_].config.instance_type.range)
+deny_invalid_instance_type contains issue if {
+	instances := terraform.resources("aws_instance", {"instance_type": "string"}, {})
+	trace("after fetch")
+	instances[_].config.type.value == "t2.micro"
+
+	issue := tflint.issue("t2.micro is not allowed", instances[_].config.instance_type.range)
 }
 ```
 

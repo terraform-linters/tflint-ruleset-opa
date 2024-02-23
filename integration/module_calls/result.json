@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_deny_remote_source",
         "severity": "error",
-        "link": "policies/main.rego:3"
+        "link": "policies/main.rego:5"
       },
       "message": "remote module is not allowed",
       "range": {

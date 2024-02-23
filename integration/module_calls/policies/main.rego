@@ -1,10 +1,12 @@
 package tflint
 
-deny_remote_source[issue] {
-  modules := terraform.module_calls({"source": "string"}, {})
-  source := modules[_].config.source
+import rego.v1
 
-  not startswith(source.value, "./")
+deny_remote_source contains issue if {
+	modules := terraform.module_calls({"source": "string"}, {})
+	source := modules[_].config.source
 
-  issue := tflint.issue("remote module is not allowed", source.range)
+	not startswith(source.value, "./")
+
+	issue := tflint.issue("remote module is not allowed", source.range)
 }

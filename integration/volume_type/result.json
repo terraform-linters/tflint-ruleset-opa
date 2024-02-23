@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_warn_gp3_volume",
         "severity": "warning",
-        "link": "policies/main.rego:3"
+        "link": "policies/main.rego:5"
       },
       "message": "gp3 is not allowed",
       "range": {
@@ -24,7 +24,7 @@
       "rule": {
         "name": "opa_warn_gp3_volume",
         "severity": "warning",
-        "link": "policies/main.rego:3"
+        "link": "policies/main.rego:5"
       },
       "message": "gp3 is not allowed",
       "range": {
@@ -44,7 +44,7 @@
       "rule": {
         "name": "opa_warn_gp3_volume",
         "severity": "warning",
-        "link": "policies/main.rego:3"
+        "link": "policies/main.rego:5"
       },
       "message": "unknown block found",
       "range": {
@@ -64,7 +64,7 @@
       "rule": {
         "name": "opa_warn_gp3_volume",
         "severity": "warning",
-        "link": "policies/main.rego:3"
+        "link": "policies/main.rego:5"
       },
       "message": "unknown resource found",
       "range": {

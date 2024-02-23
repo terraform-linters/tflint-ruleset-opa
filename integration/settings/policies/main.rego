@@ -1,10 +1,12 @@
 package tflint
 
-deny_default_hostname[issue] {
-  settings := terraform.settings({"cloud": {"hostname": "string"}}, {})
-  hostname := settings[_].config.cloud[_].config.hostname
+import rego.v1
 
-  hostname.value == "app.terraform.io"
+deny_default_hostname contains issue if {
+	settings := terraform.settings({"cloud": {"hostname": "string"}}, {})
+	hostname := settings[_].config.cloud[_].config.hostname
 
-  issue := tflint.issue("default hostname should be omitted", hostname.range)
+	hostname.value == "app.terraform.io"
+
+	issue := tflint.issue("default hostname should be omitted", hostname.range)
 }

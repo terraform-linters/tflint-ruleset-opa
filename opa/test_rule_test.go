@@ -48,7 +48,8 @@ func TestCheck_test_not_deny_t2_micro(t *testing.T) {
 	fs := memoryfs.New()
 	test := `
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_resources_t1_micro(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": ` + "`" + `
 resource "aws_instance" "main" {
@@ -74,7 +75,9 @@ test_not_deny_t2_micro if {
 			policy: `
 package tflint
 
-deny_not_t2_micro[issue] {
+import rego.v1
+
+deny_not_t2_micro contains issue if {
 	resources := terraform.resources("aws_db_instance", {"instance_type": "string"}, {})
 	instance_type := resources[_].config.instance_type
 
@@ -94,7 +97,9 @@ deny_not_t2_micro[issue] {
 			policy: `
 package tflint
 
-deny_not_t2_micro[issue] {
+import rego.v1
+
+deny_not_t2_micro contains issue if {
 	resources := terraform.resources("aws_instance", {"instance_type": "string"}, {})
 	instance_type := resources[_].config.instance_type
 
@@ -134,7 +139,8 @@ func TestCheck_test_deny_not_snake_case(t *testing.T) {
 	fs := memoryfs.New()
 	test := `
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_resources(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": ` + "`" + `
 resource "aws_instance" "main-v2" {}
@@ -161,7 +167,9 @@ test_deny_not_snake_case if {
 			policy: `
 package tflint
 
-deny_not_snake_case[issue] {
+import rego.v1
+
+deny_not_snake_case contains issue if {
 	resources := terraform.resources("*", {}, {})
 	regex.match("^[a-z][a-z0-9]*(_[a-z0-9]+)*$", resources[i].name)
 
@@ -179,7 +187,9 @@ deny_not_snake_case[issue] {
 			policy: `
 package tflint
 
-deny_not_snake_case[issue] {
+import rego.v1
+
+deny_not_snake_case contains issue if {
 	resources := terraform.resources("*", {}, {})
 	not regex.match("^[a-z][a-z0-9]*(_[a-z0-9]+)*$", resources[i].name)
 
