@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_other_ami_owners_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:23"
+        "link": "policies/main_test.rego:24"
       },
       "message": "test failed",
       "range": {

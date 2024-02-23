@@ -20,27 +20,27 @@ Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3
   on main.tf line 2:
    2:   bucket = "example-corp-assets"
 
-Reference: .tflint.d/policies/bucket.rego:11
+Reference: .tflint.d/policies/bucket.rego:13
 
 Error: Dynamic value is not allowed in bucket (opa_deny_invalid_s3_bucket_name)
 
   on main.tf line 12:
   12:   bucket = var.unknown
 
-Reference: .tflint.d/policies/bucket.rego:11
+Reference: .tflint.d/policies/bucket.rego:13
 
 Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3_bucket_name)
 
   on main.tf line 18:
   18:   bucket = "example-corp-assets"
 
-Reference: .tflint.d/policies/bucket.rego:11
+Reference: .tflint.d/policies/bucket.rego:13
 
 Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3_bucket_name)
 
   on main.tf line 24:
   24:   bucket = "example-corp-assets"
 
-Reference: .tflint.d/policies/bucket.rego:11
+Reference: .tflint.d/policies/bucket.rego:13
 
 ```

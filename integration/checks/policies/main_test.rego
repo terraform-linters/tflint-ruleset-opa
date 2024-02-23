@@ -1,5 +1,6 @@
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_checks(schema, options) := terraform.mock_checks(schema, options, {"main.tf": `
 check "deterministic" {
@@ -10,15 +11,15 @@ check "deterministic" {
 }`})
 
 test_deny_deterministic_check_condition_passed if {
-  issues := deny_deterministic_check_condition with terraform.checks as mock_checks
+	issues := deny_deterministic_check_condition with terraform.checks as mock_checks
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "deterministic check condtion is not allowed"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "deterministic check condtion is not allowed"
 }
 
 test_deny_deterministic_check_condition_failed if {
-  issues := deny_deterministic_check_condition with terraform.checks as mock_checks
+	issues := deny_deterministic_check_condition with terraform.checks as mock_checks
 
-  count(issues) == 0
+	count(issues) == 0
 }

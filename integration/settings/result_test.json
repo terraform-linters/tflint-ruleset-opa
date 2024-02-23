@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_default_hostname_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:19"
+        "link": "policies/main_test.rego:20"
       },
       "message": "test failed",
       "range": {

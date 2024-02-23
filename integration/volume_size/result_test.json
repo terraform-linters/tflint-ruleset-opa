@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_large_volume_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:19"
+        "link": "policies/main_test.rego:20"
       },
       "message": "test failed",
       "range": {
@@ -24,7 +24,7 @@
       "rule": {
         "name": "opa_test_deny_large_volume_string_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:40"
+        "link": "policies/main_test.rego:41"
       },
       "message": "test failed",
       "range": {
@@ -44,7 +44,7 @@
       "rule": {
         "name": "opa_test_deny_large_volume_float_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:61"
+        "link": "policies/main_test.rego:62"
       },
       "message": "test failed",
       "range": {

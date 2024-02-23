@@ -4,7 +4,7 @@
 			"rule": {
 				"name": "opa_deny_not_tagged_instance",
 				"severity": "error",
-				"link": "policies/main.rego:17"
+				"link": "policies/main.rego:18"
 			},
 			"message": "instance should be tagged with Environment",
 			"range": {
@@ -24,7 +24,7 @@
 			"rule": {
 				"name": "opa_deny_not_tagged_instance",
 				"severity": "error",
-				"link": "policies/main.rego:17"
+				"link": "policies/main.rego:18"
 			},
 			"message": "instance should be tagged with Environment",
 			"range": {
@@ -44,7 +44,7 @@
 			"rule": {
 				"name": "opa_deny_not_tagged_instance",
 				"severity": "error",
-				"link": "policies/main.rego:17"
+				"link": "policies/main.rego:18"
 			},
 			"message": "instance should be tagged with Environment",
 			"range": {

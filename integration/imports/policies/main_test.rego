@@ -1,5 +1,6 @@
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_imports(schema, options) := terraform.mock_imports(schema, options, {"main.tf": `
 import {
@@ -8,15 +9,15 @@ import {
 }`})
 
 test_deny_import_blocks_passed if {
-  issues := deny_import_blocks with terraform.imports as mock_imports
+	issues := deny_import_blocks with terraform.imports as mock_imports
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "import blocks are not allowed"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "import blocks are not allowed"
 }
 
 test_deny_import_blocks_failed if {
-  issues := deny_import_blocks with terraform.imports as mock_imports
+	issues := deny_import_blocks with terraform.imports as mock_imports
 
-  count(issues) == 0
+	count(issues) == 0
 }

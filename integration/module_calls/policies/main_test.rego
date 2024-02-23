@@ -1,5 +1,6 @@
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_module_calls(schema, options) := terraform.mock_module_calls(schema, options, {"main.tf": `
 module "remote" {
@@ -7,15 +8,15 @@ module "remote" {
 }`})
 
 test_deny_remote_source_passed if {
-  issues := deny_remote_source with terraform.module_calls as mock_module_calls
+	issues := deny_remote_source with terraform.module_calls as mock_module_calls
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "remote module is not allowed"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "remote module is not allowed"
 }
 
 test_deny_remote_source_failed if {
-  issues := deny_remote_source with terraform.module_calls as mock_module_calls
+	issues := deny_remote_source with terraform.module_calls as mock_module_calls
 
-  count(issues) == 0
+	count(issues) == 0
 }

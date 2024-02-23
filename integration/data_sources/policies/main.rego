@@ -1,10 +1,12 @@
 package tflint
 
-deny_other_ami_owners[issue] {
-  sources := terraform.data_sources("aws_ami", {"owners": "list(string)"}, {})
-  owners := sources[_].config.owners
+import rego.v1
 
-  owners.value[_] != "self"
+deny_other_ami_owners contains issue if {
+	sources := terraform.data_sources("aws_ami", {"owners": "list(string)"}, {})
+	owners := sources[_].config.owners
 
-  issue := tflint.issue("third-party AMI is not allowed", owners.range)
+	owners.value[_] != "self"
+
+	issue := tflint.issue("third-party AMI is not allowed", owners.range)
 }

@@ -9,12 +9,14 @@ As an example, create the following policy as `.tflint.d/policies/bucket.rego`:
 ```rego
 package tflint
 
-deny_invalid_s3_bucket_name[issue] {
-  buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
-  name := buckets[_].config.bucket
-  not startswith(name.value, "example-com-")
+import rego.v1
 
-  issue := tflint.issue(`Bucket names should always start with "example-com-"`, name.range)
+deny_invalid_s3_bucket_name contains issue if {
+	buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
+	name := buckets[_].config.bucket
+	not startswith(name.value, "example-com-")
+
+	issue := tflint.issue(`Bucket names should always start with "example-com-"`, name.range)
 }
 ```
 
@@ -39,7 +41,13 @@ package tflint
 The first line is the package declaration. All valid policies must be described under the `tflint` package.
 
 ```rego
-deny_invalid_s3_bucket_name[issue] {
+import rego.v1
+```
+
+This declaration ensures compatibility with future OPA v1 syntax. See [The `rego.v1` Import](https://www.openpolicyagent.org/docs/latest/policy-language/#the-regov1-import) for details.
+
+```rego
+deny_invalid_s3_bucket_name contains issue if {
 ```
 
 The next line is the rule declaration. A valid rule name must start with `deny_`, `violation_`, `warn_` or `notice_`. The rule name in TFLint is the rule name with "opa_" prefix (e.g. `opa_deny_invalid_s3_bucket_name`), and the severity is error for `deny_` or `violation_`, warning for `warn_`, and notice for `notice_`.
@@ -129,7 +137,7 @@ Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3
   on main.tf line 2:
    2:   bucket = "example-corp-assets"
 
-Reference: .tflint.d/policies/main.rego:3
+Reference: .tflint.d/policies/main.rego:5
 
 ```
 

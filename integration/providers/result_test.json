@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_us_east_1_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:18"
+        "link": "policies/main_test.rego:19"
       },
       "message": "test failed",
       "range": {

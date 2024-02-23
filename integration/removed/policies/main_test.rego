@@ -1,5 +1,6 @@
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_removed_blocks(schema, options) := terraform.mock_removed_blocks(schema, options, {"main.tf": `
 removed {
@@ -11,15 +12,15 @@ removed {
 }`})
 
 test_deny_removed_blocks_passed if {
-  issues := deny_removed_blocks with terraform.removed_blocks as mock_removed_blocks
+	issues := deny_removed_blocks with terraform.removed_blocks as mock_removed_blocks
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "removed blocks are not allowed"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "removed blocks are not allowed"
 }
 
 test_deny_removed_blocks_failed if {
-  issues := deny_removed_blocks with terraform.removed_blocks as mock_removed_blocks
+	issues := deny_removed_blocks with terraform.removed_blocks as mock_removed_blocks
 
-  count(issues) == 0
+	count(issues) == 0
 }

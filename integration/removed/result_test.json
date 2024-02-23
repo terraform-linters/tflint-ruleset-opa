@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_removed_blocks_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:21"
+        "link": "policies/main_test.rego:22"
       },
       "message": "test failed",
       "range": {

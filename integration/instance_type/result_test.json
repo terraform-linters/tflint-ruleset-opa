@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_not_deny_t2_micro_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:17"
+        "link": "policies/main_test.rego:18"
       },
       "message": "test failed",
       "range": {
@@ -24,7 +24,7 @@
       "rule": {
         "name": "opa_test_not_deny_t2_micro_unknown_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:37"
+        "link": "policies/main_test.rego:38"
       },
       "message": "test failed",
       "range": {
@@ -44,7 +44,7 @@
       "rule": {
         "name": "opa_test_not_deny_t2_micro_sensitive_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:58"
+        "link": "policies/main_test.rego:59"
       },
       "message": "test failed",
       "range": {

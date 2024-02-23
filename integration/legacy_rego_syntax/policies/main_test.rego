@@ -1,6 +1,5 @@
 package tflint
-
-import rego.v1
+import future.keywords
 
 mock_resources_t1_micro(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": `
 resource "aws_instance" "main" {
@@ -8,17 +7,17 @@ resource "aws_instance" "main" {
 }`})
 
 test_not_deny_t2_micro_passed if {
-	issues := deny_not_t2_micro with terraform.resources as mock_resources_t1_micro
+  issues := deny_not_t2_micro with terraform.resources as mock_resources_t1_micro
 
-	count(issues) == 1
-	issue := issues[_]
-	issue.msg == "t2.micro is only allowed"
+  count(issues) == 1
+  issue := issues[_]
+  issue.msg == "t2.micro is only allowed"
 }
 
 test_not_deny_t2_micro_failed if {
-	issues := deny_not_t2_micro with terraform.resources as mock_resources_t1_micro
+  issues := deny_not_t2_micro with terraform.resources as mock_resources_t1_micro
 
-	count(issues) == 0
+  count(issues) == 0
 }
 
 mock_resources_unknown_instance_type(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": `
@@ -28,17 +27,17 @@ resource "aws_instance" "main" {
 }`})
 
 test_not_deny_t2_micro_unknown_passed if {
-	issues := deny_not_t2_micro with terraform.resources as mock_resources_unknown_instance_type
+  issues := deny_not_t2_micro with terraform.resources as mock_resources_unknown_instance_type
 
-	count(issues) == 1
-	issue := issues[_]
-	issue.msg == "instance type is unknown"
+  count(issues) == 1
+  issue := issues[_]
+  issue.msg == "instance type is unknown"
 }
 
 test_not_deny_t2_micro_unknown_failed if {
-	issues := deny_not_t2_micro with terraform.resources as mock_resources_unknown_instance_type
+  issues := deny_not_t2_micro with terraform.resources as mock_resources_unknown_instance_type
 
-	count(issues) == 0
+  count(issues) == 0
 }
 
 mock_resources_sensitive_instance_type(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": `
@@ -51,13 +50,13 @@ resource "aws_instance" "main" {
 }`})
 
 test_not_deny_t2_micro_sensitive_passed if {
-	issues := deny_not_t2_micro with terraform.resources as mock_resources_sensitive_instance_type
+  issues := deny_not_t2_micro with terraform.resources as mock_resources_sensitive_instance_type
 
-	count(issues) == 2
+  count(issues) == 2
 }
 
 test_not_deny_t2_micro_sensitive_failed if {
-	issues := deny_not_t2_micro with terraform.resources as mock_resources_sensitive_instance_type
+  issues := deny_not_t2_micro with terraform.resources as mock_resources_sensitive_instance_type
 
-	count(issues) == 0
+  count(issues) == 0
 }

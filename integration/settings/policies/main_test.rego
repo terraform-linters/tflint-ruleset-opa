@@ -1,5 +1,6 @@
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_settings(schema, options) := terraform.mock_settings(schema, options, {"main.tf": `
 terraform {
@@ -9,15 +10,15 @@ terraform {
 }`})
 
 test_deny_default_hostname_passed if {
-  issues := deny_default_hostname with terraform.settings as mock_settings
+	issues := deny_default_hostname with terraform.settings as mock_settings
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "default hostname should be omitted"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "default hostname should be omitted"
 }
 
 test_deny_default_hostname_failed if {
-  issues := deny_default_hostname with terraform.settings as mock_settings
+	issues := deny_default_hostname with terraform.settings as mock_settings
 
-  count(issues) == 0
+	count(issues) == 0
 }

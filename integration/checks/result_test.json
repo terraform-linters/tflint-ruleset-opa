@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_deterministic_check_condition_failed",
         "severity": "error",
-        "link": "policies/main_test.rego:20"
+        "link": "policies/main_test.rego:21"
       },
       "message": "test failed",
       "range": {

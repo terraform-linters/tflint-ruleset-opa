@@ -41,12 +41,14 @@ For example, your organization wants to enforce S3 bucket names to always start 
 ```rego
 package tflint
 
-deny_invalid_s3_bucket_name[issue] {
-  buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
-  name := buckets[_].config.bucket
-  not startswith(name.value, "example-com-")
+import rego.v1
 
-  issue := tflint.issue(`Bucket names should always start with "example-com-"`, name.range)
+deny_invalid_s3_bucket_name contains issue if {
+	buckets := terraform.resources("aws_s3_bucket", {"bucket": "string"}, {})
+	name := buckets[_].config.bucket
+	not startswith(name.value, "example-com-")
+
+	issue := tflint.issue(`Bucket names should always start with "example-com-"`, name.range)
 }
 ```
 
@@ -71,7 +73,7 @@ Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3
   on main.tf line 2:
    2:   bucket = "example-corp-assets"
 
-Reference: .tflint.d/policies/bucket.rego:3
+Reference: .tflint.d/policies/bucket.rego:5
 
 ```
 

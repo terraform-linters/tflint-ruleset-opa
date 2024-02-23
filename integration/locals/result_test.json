@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_test_deny_too_many_locals_passed",
         "severity": "error",
-        "link": "policies/main_test.rego:6"
+        "link": "policies/main_test.rego:7"
       },
       "message": "test failed",
       "range": {

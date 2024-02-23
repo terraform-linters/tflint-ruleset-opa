@@ -4,7 +4,7 @@
       "rule": {
         "name": "opa_deny_no_resources",
         "severity": "error",
-        "link": "policies/main.rego:10"
+        "link": "policies/main.rego:12"
       },
       "message": "resources should be declared",
       "range": {

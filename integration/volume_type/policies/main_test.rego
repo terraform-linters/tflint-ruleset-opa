@@ -1,5 +1,6 @@
 package tflint
-import future.keywords
+
+import rego.v1
 
 mock_resources_gp3(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": `
 resource "aws_instance" "main" {
@@ -9,17 +10,17 @@ resource "aws_instance" "main" {
 }`})
 
 test_warn_gp3_volume_passed if {
-  issues := warn_gp3_volume with terraform.resources as mock_resources_gp3
+	issues := warn_gp3_volume with terraform.resources as mock_resources_gp3
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "gp3 is not allowed"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "gp3 is not allowed"
 }
 
 test_warn_gp3_volume_failed if {
-  issues := warn_gp3_volume with terraform.resources as mock_resources_gp3
+	issues := warn_gp3_volume with terraform.resources as mock_resources_gp3
 
-  count(issues) == 0
+	count(issues) == 0
 }
 
 mock_resources_unknown_dynamic(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": `
@@ -36,15 +37,15 @@ resource "aws_instance" "main" {
 }`})
 
 test_warn_gp3_volume_unknown_dynamic_passed if {
-  issues := warn_gp3_volume with terraform.resources as mock_resources_unknown_dynamic
+	issues := warn_gp3_volume with terraform.resources as mock_resources_unknown_dynamic
 
-  count(issues) == 1
-  issue := issues[_]
-  issue.msg == "unknown block found"
+	count(issues) == 1
+	issue := issues[_]
+	issue.msg == "unknown block found"
 }
 
 test_warn_gp3_volume_unknown_dynamic_failed if {
-  issues := warn_gp3_volume with terraform.resources as mock_resources_unknown_dynamic
+	issues := warn_gp3_volume with terraform.resources as mock_resources_unknown_dynamic
 
-  count(issues) == 0
+	count(issues) == 0
 }
