@@ -1,3 +1,16 @@
+## 0.6.0 (2024-02-23)
+
+### Enhancements
+
+- [#83](https://github.com/terraform-linters/tflint-ruleset-opa/pull/83): Bump github.com/open-policy-agent/opa from 0.60.0 to 0.61.0
+- [#87](https://github.com/terraform-linters/tflint-ruleset-opa/pull/87): Add `terraform.removed_blocks` function
+
+### Chores
+
+- [#82](https://github.com/terraform-linters/tflint-ruleset-opa/pull/82): Bump github.com/zclconf/go-cty from 1.14.1 to 1.14.2
+- [#86](https://github.com/terraform-linters/tflint-ruleset-opa/pull/86): deps: Go 1.22
+- [#88](https://github.com/terraform-linters/tflint-ruleset-opa/pull/88): Rewrite policies with `import rego.v1`
+
 ## 0.5.0 (2023-12-27)
 
 ### Enhancements
