@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/google/go-cmp v0.6.0
 	github.com/hashicorp/go-hclog v1.6.2
-	github.com/hashicorp/hcl/v2 v2.20.0
+	github.com/hashicorp/hcl/v2 v2.20.1
 	github.com/liamg/memoryfs v1.6.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/open-policy-agent/opa v0.63.0
