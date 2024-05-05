@@ -1,3 +1,19 @@
+## 0.7.0 (2024-05-05)
+
+### Enhancements
+
+- [#92](https://github.com/terraform-linters/tflint-ruleset-opa/pull/92) [#95](https://github.com/terraform-linters/tflint-ruleset-opa/pull/95) [#98](https://github.com/terraform-linters/tflint-ruleset-opa/pull/98) [#102](https://github.com/terraform-linters/tflint-ruleset-opa/pull/102): Bump github.com/open-policy-agent/opa from 0.61.0 to 0.64.1
+- [#93](https://github.com/terraform-linters/tflint-ruleset-opa/pull/93) [#99](https://github.com/terraform-linters/tflint-ruleset-opa/pull/99): Bump github.com/hashicorp/hcl/v2 from 2.19.1 to 2.20.1
+  - This is required for provider-defined functions support
+
+### Chores
+
+- [#91](https://github.com/terraform-linters/tflint-ruleset-opa/pull/91) [#97](https://github.com/terraform-linters/tflint-ruleset-opa/pull/97): Bump github.com/zclconf/go-cty from 1.14.2 to 1.14.4
+- [#100](https://github.com/terraform-linters/tflint-ruleset-opa/pull/100): Bump github.com/hashicorp/go-hclog from 1.6.2 to 1.6.3
+- [#101](https://github.com/terraform-linters/tflint-ruleset-opa/pull/101): Bump golang.org/x/net from 0.22.0 to 0.23.0
+- [#103](https://github.com/terraform-linters/tflint-ruleset-opa/pull/103): deps: Go 1.22.2
+- [#104](https://github.com/terraform-linters/tflint-ruleset-opa/pull/104): Bump github.com/terraform-linters/tflint-plugin-sdk from 0.18.0 to 0.20.0
+
 ## 0.6.0 (2024-02-23)
 
 ### Enhancements
