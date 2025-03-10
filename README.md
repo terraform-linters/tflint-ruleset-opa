@@ -1,5 +1,5 @@
 # TFLint Ruleset powered by Open Policy Agent (OPA)
-[![Build Status](https://github.com/terraform-linters/tflint-ruleset-opa/workflows/build/badge.svg?branch=main)](https://github.com/terraform-linters/tflint-ruleset-opa/actions)
+[![Build Status](https://github.com/terraform-linters/tflint-ruleset-opa/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/terraform-linters/tflint-ruleset-opa/actions)
 [![GitHub release](https://img.shields.io/github/release/terraform-linters/tflint-ruleset-opa.svg)](https://github.com/terraform-linters/tflint-ruleset-opa/releases/latest)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL%202.0-blue.svg)](LICENSE)
 
@@ -10,7 +10,7 @@ NOTE: This plugin is experimental. This means frequent breaking changes.
 ## Requirements
 
 - TFLint v0.43+
-- Go v1.22
+- Go v1.24
 
 ## Installation
 
