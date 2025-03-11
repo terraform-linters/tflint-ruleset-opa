@@ -1,3 +1,5 @@
+See https://github.com/terraform-linters/tflint-ruleset-opa/releases for later releases.
+
 ## 0.7.0 (2024-05-05)
 
 ### Enhancements
