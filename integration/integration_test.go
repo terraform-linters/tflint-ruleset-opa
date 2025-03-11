@@ -247,6 +247,17 @@ func TestIntegration(t *testing.T) {
 			dir:     "legacy_rego_syntax",
 			test:    true,
 		},
+		{
+			name:    "ephemerals",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "ephemerals",
+		},
+		{
+			name:    "ephemerals (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "ephemerals",
+			test:    true,
+		},
 	}
 
 	dir, _ := os.Getwd()
