@@ -61,3 +61,24 @@ test_not_deny_t2_micro_sensitive_failed if {
 
 	count(issues) == 0
 }
+
+mock_resources_ephemeral_instance_type(type, schema, options) := terraform.mock_resources(type, schema, options, {"main.tf": `
+variable "ephemeral" {
+  default = "t2.micro"
+  ephemeral = true
+}
+resource "aws_instance" "main" {
+  instance_type = var.ephemeral
+}`})
+
+test_not_deny_t2_micro_ephemeral_passed if {
+	issues := deny_not_t2_micro with terraform.resources as mock_resources_ephemeral_instance_type
+
+	count(issues) == 2
+}
+
+test_not_deny_t2_micro_ephemeral_failed if {
+	issues := deny_not_t2_micro with terraform.resources as mock_resources_ephemeral_instance_type
+
+	count(issues) == 0
+}

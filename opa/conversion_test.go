@@ -311,6 +311,7 @@ func TestLocalsToJSON(t *testing.T) {
 						"value":     "bar",
 						"unknown":   false,
 						"sensitive": false,
+						"ephemeral": false,
 						"range":     emptyRange,
 					},
 					"decl_range": emptyRange,
@@ -368,6 +369,7 @@ func TestBodyToJSON(t *testing.T) {
 					"value":     "bar",
 					"unknown":   false,
 					"sensitive": false,
+					"ephemeral": false,
 					"range":     emptyRange,
 				},
 				"baz": []map[string]any{
@@ -430,6 +432,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     "foo",
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -441,6 +444,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     float64(1),
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -452,6 +456,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     true,
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -463,6 +468,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     []any{"foo", "bar"},
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -474,6 +480,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     map[string]any{"foo": "bar"},
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -485,6 +492,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     nil,
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -496,6 +504,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     float64(1),
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -507,6 +516,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     "1",
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -518,6 +528,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     []any{"1"},
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range":     emptyRange,
 			},
 		},
@@ -529,6 +540,7 @@ func TestExprToJSON(t *testing.T) {
 				"value":     "bar",
 				"unknown":   false,
 				"sensitive": false,
+				"ephemeral": false,
 				"range": map[string]any{
 					"filename": "main.tf",
 					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
@@ -544,6 +556,7 @@ func TestExprToJSON(t *testing.T) {
 			want: map[string]any{
 				"unknown":   true,
 				"sensitive": false,
+				"ephemeral": false,
 				"range": map[string]any{
 					"filename": "main.tf",
 					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
@@ -559,6 +572,7 @@ func TestExprToJSON(t *testing.T) {
 			want: map[string]any{
 				"unknown":   true,
 				"sensitive": false,
+				"ephemeral": false,
 				"range": map[string]any{
 					"filename": "main.tf",
 					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
@@ -574,6 +588,7 @@ func TestExprToJSON(t *testing.T) {
 			want: map[string]any{
 				"unknown":   true,
 				"sensitive": true,
+				"ephemeral": false,
 				"range": map[string]any{
 					"filename": "main.tf",
 					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
@@ -589,6 +604,7 @@ func TestExprToJSON(t *testing.T) {
 			want: map[string]any{
 				"unknown":   true,
 				"sensitive": true,
+				"ephemeral": false,
 				"range": map[string]any{
 					"filename": "main.tf",
 					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
@@ -596,6 +612,58 @@ func TestExprToJSON(t *testing.T) {
 				},
 			},
 			source: `variable "foo" { sensitive = true }`,
+		},
+		{
+			name:  "ephemeral",
+			input: parse("var.foo"),
+			ty:    cty.String,
+			want: map[string]any{
+				"unknown":   true,
+				"sensitive": false,
+				"ephemeral": true,
+				"range": map[string]any{
+					"filename": "main.tf",
+					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
+					"end":      map[string]int{"line": 1, "column": 8, "byte": 7},
+				},
+			},
+			source: `variable "foo" { ephemeral = true }`,
+		},
+		{
+			name:  "composite ephemeral",
+			input: parse("[var.foo]"),
+			ty:    cty.String,
+			want: map[string]any{
+				"unknown":   true,
+				"sensitive": false,
+				"ephemeral": true,
+				"range": map[string]any{
+					"filename": "main.tf",
+					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
+					"end":      map[string]int{"line": 1, "column": 10, "byte": 9},
+				},
+			},
+			source: `variable "foo" { ephemeral = true }`,
+		},
+		{
+			name:  "sensitive + ephemeral",
+			input: parse("var.foo"),
+			ty:    cty.String,
+			want: map[string]any{
+				"unknown":   true,
+				"sensitive": true,
+				"ephemeral": true,
+				"range": map[string]any{
+					"filename": "main.tf",
+					"start":    map[string]int{"line": 1, "column": 1, "byte": 0},
+					"end":      map[string]int{"line": 1, "column": 8, "byte": 7},
+				},
+			},
+			source: `
+variable "foo" {
+  sensitive = true
+  ephemeral = true
+}`,
 		},
 		{
 			name:  "invalid type",

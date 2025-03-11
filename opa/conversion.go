@@ -265,12 +265,13 @@ func bodyToJSON(body *hclext.BodyContent, tyMap map[string]cty.Type, path string
 	return ret, nil
 }
 
-// expr (object<value: any, unknown: boolean, sensitive: boolean, range: range>) representation of an expression
+// expr (object<value: any, unknown: boolean, sensitive: boolean, ephemeral: boolean, range: range>) representation of an expression
 var exprTy = types.NewObject(
 	[]*types.StaticProperty{
 		types.NewStaticProperty("value", types.A),
 		types.NewStaticProperty("unknown", types.B),
 		types.NewStaticProperty("sensitive", types.B),
+		types.NewStaticProperty("ephemeral", types.B),
 		types.NewStaticProperty("range", rangeTy),
 	},
 	nil,
@@ -280,6 +281,7 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 	ret := map[string]any{
 		"unknown":   false,
 		"sensitive": false,
+		"ephemeral": false,
 		"range":     rangeToJSON(expr.Range()),
 	}
 
@@ -294,9 +296,14 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 		}
 		return ret, err
 	}
-	if marks.Contains(value, marks.Sensitive) {
+	if value.ContainsMarked() {
 		ret["unknown"] = true
-		ret["sensitive"] = true
+		if marks.Contains(value, marks.Sensitive) {
+			ret["sensitive"] = true
+		}
+		if marks.Contains(value, marks.Ephemeral) {
+			ret["ephemeral"] = true
+		}
 		return ret, nil
 	}
 	if !value.IsWhollyKnown() {

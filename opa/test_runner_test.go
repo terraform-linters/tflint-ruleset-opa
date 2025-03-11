@@ -237,6 +237,16 @@ variable "instance_type" {
 			expr: parse("var.instance_type"),
 			want: `cty.StringVal("t2.micro").Mark(marks.Sensitive)`,
 		},
+		{
+			name: "ephemeral variable",
+			config: `
+variable "instance_type" {
+	default   = "t2.micro"
+	ephemeral = true
+}`,
+			expr: parse("var.instance_type"),
+			want: `cty.StringVal("t2.micro").Mark(marks.Ephemeral)`,
+		},
 	}
 
 	for _, test := range tests {

@@ -22,7 +22,7 @@ Ideally, you should also set `TF_VAR_bucket_name` in CI, but if it's not availab
 Cases that return unknown values are:
 
 - Variables without values
-- Variables marked with `sensitive = true`
+- Variables marked with `sensitive = true` or `ephemeral = true`
 - Resource attributes (e.g. `aws_instance.web.arn`)
 - Data attributes (e.g. `data.aws_ami.web.id`)
 - Module outputs (e.g. `module.vpc.vpc_id`)
@@ -40,6 +40,7 @@ In this case the returned JSON looks like this:
       "bucket": {
         "unknown": true,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -256,6 +257,7 @@ In this case the returned JSON looks like this:
         "value": null,
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },

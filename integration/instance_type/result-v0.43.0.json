@@ -106,27 +106,7 @@
         "severity": "error",
         "link": "policies/main.rego:5"
       },
-      "message": "instance type is ephemeral",
-      "range": {
-        "filename": "main.tf",
-        "start": {
-          "line": 34,
-          "column": 19
-        },
-        "end": {
-          "line": 34,
-          "column": 32
-        }
-      },
-      "callers": []
-    },
-    {
-      "rule": {
-        "name": "opa_deny_not_t2_micro",
-        "severity": "error",
-        "link": "policies/main.rego:5"
-      },
-      "message": "instance type is unknown",
+      "message": "t2.micro is only allowed",
       "range": {
         "filename": "main.tf",
         "start": {
