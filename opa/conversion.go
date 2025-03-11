@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/typeexpr"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
-	"github.com/open-policy-agent/opa/types"
+	"github.com/open-policy-agent/opa/v1/types"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/terraform/lang/marks"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"

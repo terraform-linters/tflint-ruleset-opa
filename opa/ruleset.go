@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/open-policy-agent/opa/loader"
+	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )

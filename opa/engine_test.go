@@ -8,8 +8,8 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/liamg/memoryfs"
-	"github.com/open-policy-agent/opa/loader"
-	"github.com/open-policy-agent/opa/version"
+	"github.com/open-policy-agent/opa/v1/loader"
+	"github.com/open-policy-agent/opa/v1/version"
 )
 
 func TestRunQuery(t *testing.T) {

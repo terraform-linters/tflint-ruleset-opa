@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/liamg/memoryfs"
-	"github.com/open-policy-agent/opa/ast"
-	"github.com/open-policy-agent/opa/loader"
+	"github.com/open-policy-agent/opa/v1/ast"
+	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/terraform-linters/tflint-plugin-sdk/helper"
 )
 
