@@ -39,6 +39,7 @@ resource "aws_s3_bucket" "main" {
 							"value":     "t2.micro",
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -143,6 +144,7 @@ resource "aws_instance" "main" {
 										"value":     30,
 										"unknown":   false,
 										"sensitive": false,
+										"ephemeral": false,
 										"range": map[string]any{
 											"filename": "main.tf",
 											"start": map[string]int{
@@ -319,6 +321,7 @@ data "aws_ami" "main" {
 							"value":     []string{"self"},
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -369,6 +372,7 @@ check "scoped" {
 							"value":     []string{"self"},
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -476,6 +480,7 @@ module "aws_instance" {
 							"value":     "t2.micro",
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -579,6 +584,7 @@ provider "aws" {
 							"value":     "us-east-1",
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -692,6 +698,7 @@ terraform {
 										},
 										"unknown":   false,
 										"sensitive": false,
+										"ephemeral": false,
 										"range": map[string]any{
 											"filename": "main.tf",
 											"start": map[string]int{
@@ -812,6 +819,7 @@ variable "foo" {
 							"value":     true,
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -915,6 +923,7 @@ output "bar" {
 							"value":     nil,
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -1015,6 +1024,7 @@ locals {
 						"value":     "bar",
 						"unknown":   false,
 						"sensitive": false,
+						"ephemeral": false,
 						"range": map[string]any{
 							"filename": "main.tf",
 							"start": map[string]int{
@@ -1113,6 +1123,7 @@ variable "foo" {}`,
 						"from": map[string]any{
 							"unknown":   true,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -1216,6 +1227,7 @@ import {
 							"value":     "i-abcd1234",
 							"unknown":   false,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{
@@ -1329,6 +1341,7 @@ check "health_check" {
 										"value":     true,
 										"unknown":   false,
 										"sensitive": false,
+										"ephemeral": false,
 										"range": map[string]any{
 											"filename": "main.tf",
 											"start": map[string]int{
@@ -1449,6 +1462,7 @@ variable "foo" {}`,
 						"from": map[string]any{
 							"unknown":   true,
 							"sensitive": false,
+							"ephemeral": false,
 							"range": map[string]any{
 								"filename": "main.tf",
 								"start": map[string]int{

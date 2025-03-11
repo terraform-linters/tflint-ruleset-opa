@@ -25,3 +25,11 @@ variable "sensitive" {
 resource "aws_instance" "sensitive" {
   instance_type = var.sensitive
 }
+
+variable "ephemeral" {
+  default   = "m5.large"
+  ephemeral = true
+}
+resource "aws_instance" "ephemeral" {
+  instance_type = var.ephemeral
+}

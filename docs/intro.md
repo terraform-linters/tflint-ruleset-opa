@@ -74,6 +74,7 @@ The return value of this function will be the following JSON:
         "value": "example-corp-assets",
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {
           "filename": "main.tf",
           "start": { "line": 2, "column": 12, "byte": 48 },
@@ -95,6 +96,7 @@ The return value of this function will be the following JSON:
         "value": "example-com-assets",
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {
           "filename": "main.tf",
           "start": { "line": 6, "column": 12, "byte": 119 },

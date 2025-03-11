@@ -255,21 +255,10 @@ func TestIntegration(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			testDir := filepath.Join(dir, test.dir)
+			t.Chdir(testDir)
 
-			t.Cleanup(func() {
-				if err := os.Chdir(dir); err != nil {
-					t.Fatal(err)
-				}
-			})
-
-			if err := os.Chdir(testDir); err != nil {
-				t.Fatal(err)
-			}
-
-			retFile := "result"
 			if test.test {
 				test.command.Env = append(os.Environ(), "TFLINT_OPA_TEST=1")
-				retFile = "result_test"
 			}
 
 			var stdout, stderr bytes.Buffer
@@ -279,7 +268,7 @@ func TestIntegration(t *testing.T) {
 				t.Fatalf("%s, stdout=%s stderr=%s", err, stdout.String(), stderr.String())
 			}
 
-			b, err := os.ReadFile(filepath.Join(testDir, fmt.Sprintf("%s.json", retFile)))
+			b, err := readResultFile(testDir, test.test)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -310,4 +299,28 @@ func TestIntegration(t *testing.T) {
 			}
 		})
 	}
+}
+
+func readResultFile(dir string, test bool) ([]byte, error) {
+	var resultFile string
+	if test {
+		resultFile = "result_test.json"
+	} else {
+		resultFile = "result.json"
+	}
+
+	tflintVersion := os.Getenv("TFLINT_VERSION")
+	if tflintVersion != "latest" {
+		var versionResultFile string
+		if test {
+			versionResultFile = fmt.Sprintf("result_test-%s.json", tflintVersion)
+		} else {
+			versionResultFile = fmt.Sprintf("result-%s.json", tflintVersion)
+		}
+
+		if _, err := os.Stat(filepath.Join(dir, versionResultFile)); !os.IsNotExist(err) {
+			resultFile = versionResultFile
+		}
+	}
+	return os.ReadFile(filepath.Join(dir, resultFile))
 }

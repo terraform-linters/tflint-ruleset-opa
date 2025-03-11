@@ -24,7 +24,7 @@ Types:
 |---|---|
 |`schema`|`object[string: any<string, schema>]`|
 |`body`|`object[string: any<expr, array[nested_block]>]`|
-|`expr`|`object<value: any, unknown: boolean, sensitive: boolean, range: range>`|
+|`expr`|`object<value: any, unknown: boolean, sensitive: boolean, ephemeral: boolean, range: range>`|
 |`nested_block`|`object<config: object[string: any<expr, array[nested_block]>], labels: array[string], decl_range: range>`|
 |`range`|`object<filename: string, start: pos, end: pos>`|
 |`pos`|`object<line: number, column: number, byte: number>`|
@@ -61,6 +61,7 @@ terraform.resources("aws_instance", {"instance_type": "string"}, {})
         "value": "t2.micro",
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {
           "filename": "main.tf",
           "start": { "line": 2, "column": 19, "byte": 51 },
@@ -100,6 +101,7 @@ terraform.resources("aws_instance", {"ebs_block_device": {"volume_size": "number
               "value": 50,
               "unknown": false,
               "sensitive": false,
+              "ephemeral": false,
               "range": {...}
             }
           },
@@ -225,6 +227,7 @@ terraform.data_sources("aws_ami", {"owners": "list(string)"}, {})
         "value": ["self"],
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -271,6 +274,7 @@ terraform.module_calls({"instance_type": "string"}, {})
         "value": "t2.micro",
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -317,6 +321,7 @@ terraform.providers({"region": "string"}, {})
         "value": "us-east-1",
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -373,6 +378,7 @@ terraform.settings({"required_providers": {"aws": "map(string)"}}, {})
               },
               "unknown": false,
               "sensitive": false,
+              "ephemeral": false,
               "range": {...}
             }
           },
@@ -424,6 +430,7 @@ terraform.variables({"nullable": "bool"}, {})
         "value": true,
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -470,6 +477,7 @@ terraform.outputs({"description": "string"}, {})
         "value": null,
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -514,6 +522,7 @@ terraform.locals({})
       "value": "bar",
       "unknown": false,
       "sensitive": false,
+      "ephemeral": false,
       "range": {...}
     },
     "decl_range": {...}
@@ -558,6 +567,7 @@ terraform.moved_blocks({"from": "any"}, {})
       "from": {
         "unknown": true,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -604,6 +614,7 @@ terraform.imports({"id": "string"}, {})
         "value": "i-abcd1234",
         "unknown": false,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },
@@ -658,6 +669,7 @@ terraform.checks({"assert": {"condition": "bool"}}, {})
             "condition": {
               "unknown": true,
               "sensitive": false,
+              "ephemeral": false,
               "range": {...}
             }
           },
@@ -711,6 +723,7 @@ terraform.removed_blocks({"from": "any"}, {})
       "from": {
         "unknown": true,
         "sensitive": false,
+        "ephemeral": false,
         "range": {...}
       }
     },

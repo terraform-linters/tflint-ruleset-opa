@@ -26,6 +26,7 @@ type variable struct {
 	Name      string
 	Default   cty.Value
 	Sensitive bool
+	Ephemeral bool
 	DeclRange hcl.Range
 }
 
@@ -99,6 +100,7 @@ func (r *testRunner) GetModuleContent(schema *hclext.BodySchema, _ *tflint.GetMo
 }
 
 var sensitiveMark = cty.NewValueMarks(marks.Sensitive)
+var ephemeralMark = cty.NewValueMarks(marks.Ephemeral)
 
 // EvaluateExpr returns a value of the passed expression.
 // Not expected to reflect anything other than cty.Value.
@@ -113,6 +115,9 @@ func (r *testRunner) EvaluateExpr(expr hcl.Expression, ret interface{}, _ *tflin
 		}
 		if variable.Sensitive {
 			val = val.WithMarks(sensitiveMark)
+		}
+		if variable.Ephemeral {
+			val = val.WithMarks(ephemeralMark)
 		}
 		variables[variable.Name] = val
 	}
@@ -182,13 +187,16 @@ func decodeVariableBlock(block *hcl.Block) (*variable, hcl.Diagnostics) {
 	}
 
 	content, _, diags := block.Body.PartialContent(&hcl.BodySchema{
-		// Only supports "default" and "sensitive"
+		// Only supports "default", "sensitive", and "ephemeral"
 		Attributes: []hcl.AttributeSchema{
 			{
 				Name: "default",
 			},
 			{
 				Name: "sensitive",
+			},
+			{
+				Name: "ephemeral",
 			},
 		},
 	})
@@ -207,6 +215,12 @@ func decodeVariableBlock(block *hcl.Block) (*variable, hcl.Diagnostics) {
 
 	if attr, exists := content.Attributes["sensitive"]; exists {
 		diags := gohcl.DecodeExpression(attr.Expr, nil, &v.Sensitive)
+		if diags.HasErrors() {
+			return v, diags
+		}
+	}
+	if attr, exists := content.Attributes["ephemeral"]; exists {
+		diags := gohcl.DecodeExpression(attr.Expr, nil, &v.Ephemeral)
 		if diags.HasErrors() {
 			return v, diags
 		}
