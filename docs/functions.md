@@ -732,6 +732,56 @@ terraform.removed_blocks({"from": "any"}, {})
 ]
 ```
 
+## `terraform.ephemeral_resources`
+
+```rego
+resources := terraform.ephemeral_resources(resource_type, schema, options)
+```
+
+Returns Terraform ephemeral resources.
+
+- `resource_type` (string): resource type to retrieve. "*" is a special character that returns all ephemeral resources.
+- `schema` (schema): schema for attributes referenced in rules.
+- `options` (object[string: string]): options to change the retrieve/evaluate behavior.
+
+Returns:
+
+- `resources` (array[object<type: string, name: string, config: body, decl_range: range>]): Terraform "ephemeral" blocks.
+
+The `schema` and `options` are equivalent to the arguments of the `terraform.resources` function.
+
+Examples:
+
+```hcl
+ephemeral "random_password" "db_password" {
+  length           = 16
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+```
+
+```rego
+terraform.ephemeral_resources("random_password", {"length": "number"}, {})
+```
+
+```json
+[
+  {
+    "type": "random_password",
+    "name": "db_password",
+    "config": {
+      "owners": {
+        "value": 16,
+        "unknown": false,
+        "sensitive": false,
+        "ephemeral": false,
+        "range": {...}
+      }
+    },
+    "decl_range": {...}
+  }
+]
+```
+
 ## `terraform.module_range`
 
 ```rego

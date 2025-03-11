@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_weak_password",
+        "severity": "error",
+        "link": "policies/main.rego:5"
+      },
+      "message": "Password must be at least 32 characters long",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 2,
+          "column": 22
+        },
+        "end": {
+          "line": 2,
+          "column": 24
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

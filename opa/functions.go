@@ -30,6 +30,7 @@ func Functions(runner tflint.Runner) []func(*rego.Rego) {
 		importsFunc(runner).asOption(),
 		checksFunc(runner).asOption(),
 		removedBlocksFunc(runner).asOption(),
+		ephemeralResourcesFunc(runner).asOption(),
 		moduleRangeFunc(runner).asOption(),
 		issueFunc().asOption(),
 	}
@@ -50,6 +51,7 @@ func TesterFunctions(runner tflint.Runner) []*tester.Builtin {
 		importsFunc(runner).asTester(),
 		checksFunc(runner).asTester(),
 		removedBlocksFunc(runner).asTester(),
+		ephemeralResourcesFunc(runner).asTester(),
 		moduleRangeFunc(runner).asTester(),
 		issueFunc().asTester(),
 	}
@@ -72,6 +74,7 @@ func MockFunctions() []func(*rego.Rego) {
 		mockFunction2(importsFunc).asOption(),
 		mockFunction2(checksFunc).asOption(),
 		mockFunction2(removedBlocksFunc).asOption(),
+		mockFunction3(ephemeralResourcesFunc).asOption(),
 	}
 }
 
@@ -90,6 +93,7 @@ func TesterMockFunctions() []*tester.Builtin {
 		mockFunction2(importsFunc).asTester(),
 		mockFunction2(checksFunc).asTester(),
 		mockFunction2(removedBlocksFunc).asTester(),
+		mockFunction3(ephemeralResourcesFunc).asTester(),
 	}
 }
 
@@ -558,6 +562,36 @@ func removedBlocksFunc(runner tflint.Runner) *function2 {
 		},
 		Func: func(_ rego.BuiltinContext, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
 			return blockFunc(schema, options, "removed", runner)
+		},
+	}
+}
+
+// terraform.ephemeral_resources: resources := terraform.ephemeral_resources(resource_type, schema, options)
+//
+// Returns Terraform ephemeral resources.
+//
+//	resource_type (string)  resource type to retrieve. "*" is a special character that returns all resources.
+//	schema        (schema)  schema for attributes referenced in rules.
+//	options       (options) options to change the retrieve/evaluate behavior.
+//
+// Returns:
+//
+//	resources (array[typed_block]) Terraform "ephemeral" blocks
+func ephemeralResourcesFunc(runner tflint.Runner) *function3 {
+	return &function3{
+		function: function{
+			Decl: &rego.Function{
+				Name: "terraform.ephemeral_resources",
+				Decl: types.NewFunction(
+					types.Args(types.S, schemaTy, optionsTy),
+					types.NewArray(nil, typedBlockTy),
+				),
+				Memoize:          true,
+				Nondeterministic: true,
+			},
+		},
+		Func: func(_ rego.BuiltinContext, resourceType *ast.Term, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
+			return typedBlockFunc(resourceType, schema, options, "ephemeral", runner)
 		},
 	}
 }

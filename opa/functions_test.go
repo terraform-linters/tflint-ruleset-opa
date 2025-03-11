@@ -1543,6 +1543,117 @@ variable "foo" {}`,
 	}
 }
 
+func TestEphemeralResourcesFunc(t *testing.T) {
+	tests := []struct {
+		name         string
+		config       string
+		resourceType string
+		schema       map[string]any
+		options      map[string]string
+		want         []map[string]any
+	}{
+		{
+			name: "ephemeral resource",
+			config: `
+ephemeral "aws_secretsmanager_secret_version" "db_password" {
+  secret_id = "secret_id"
+}`,
+			resourceType: "aws_secretsmanager_secret_version",
+			schema:       map[string]any{"secret_id": "string"},
+			want: []map[string]any{
+				{
+					"type": "aws_secretsmanager_secret_version",
+					"name": "db_password",
+					"config": map[string]any{
+						"secret_id": map[string]any{
+							"value":     "secret_id",
+							"unknown":   false,
+							"sensitive": false,
+							"ephemeral": false,
+							"range": map[string]any{
+								"filename": "main.tf",
+								"start": map[string]int{
+									"line":   3,
+									"column": 15,
+									"byte":   77,
+								},
+								"end": map[string]int{
+									"line":   3,
+									"column": 26,
+									"byte":   88,
+								},
+							},
+						},
+					},
+					"decl_range": map[string]any{
+						"filename": "main.tf",
+						"start": map[string]int{
+							"line":   2,
+							"column": 1,
+							"byte":   1,
+						},
+						"end": map[string]int{
+							"line":   2,
+							"column": 60,
+							"byte":   60,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			resourceType, err := ast.InterfaceToValue(test.resourceType)
+			if err != nil {
+				t.Fatal(err)
+			}
+			schema, err := ast.InterfaceToValue(test.schema)
+			if err != nil {
+				t.Fatal(err)
+			}
+			options, err := ast.InterfaceToValue(test.options)
+			if err != nil {
+				t.Fatal(err)
+			}
+			config, err := ast.InterfaceToValue(map[string]string{"main.tf": test.config})
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := ast.InterfaceToValue(test.want)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			if diags.HasErrors() {
+				t.Fatal(diags)
+			}
+
+			ctx := rego.BuiltinContext{}
+			got, err := ephemeralResourcesFunc(runner).Func(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+
+			ctx = rego.BuiltinContext{}
+			got, err = mockFunction3(ephemeralResourcesFunc).Func(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func TestModuleRangeFunc(t *testing.T) {
 	tests := []struct {
 		name   string

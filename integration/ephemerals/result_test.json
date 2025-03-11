@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_deny_weak_password_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:18"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}
