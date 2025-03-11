@@ -237,17 +237,6 @@ func TestIntegration(t *testing.T) {
 			test:    true,
 		},
 		{
-			name:    "legacy Rego syntax",
-			command: exec.Command("tflint", "--format", "json", "--force"),
-			dir:     "legacy_rego_syntax",
-		},
-		{
-			name:    "legacy Rego syntax (test)",
-			command: exec.Command("tflint", "--format", "json", "--force"),
-			dir:     "legacy_rego_syntax",
-			test:    true,
-		},
-		{
 			name:    "ephemerals",
 			command: exec.Command("tflint", "--format", "json", "--force"),
 			dir:     "ephemerals",

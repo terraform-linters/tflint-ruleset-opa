@@ -5,8 +5,8 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/liamg/memoryfs"
-	"github.com/open-policy-agent/opa/ast"
-	"github.com/open-policy-agent/opa/loader"
+	"github.com/open-policy-agent/opa/v1/ast"
+	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/terraform-linters/tflint-plugin-sdk/helper"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
