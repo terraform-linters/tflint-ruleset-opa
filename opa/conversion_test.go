@@ -64,6 +64,14 @@ func TestJSONToSchema(t *testing.T) {
 			tyMap: map[string]cty.Type{},
 		},
 		{
+			name:  "expr type",
+			input: map[string]any{"instance_type": "expr"},
+			want: &hclext.BodySchema{
+				Attributes: []hclext.AttributeSchema{{Name: "instance_type"}},
+			},
+			tyMap: map[string]cty.Type{"schema.instance_type": exprCty},
+		},
+		{
 			name:  "invalid schema type",
 			input: map[string]any{"nested": map[string]any{"number": 1}},
 			err:   "schema.nested.number is not string or object, got int",
@@ -408,12 +416,15 @@ func TestBodyToJSON(t *testing.T) {
 }
 
 func TestExprToJSON(t *testing.T) {
-	parse := func(src string) hcl.Expression {
-		expr, diags := hclsyntax.ParseExpression([]byte(src), "main.tf", hcl.InitialPos)
+	parseWithPos := func(src string, start hcl.Pos) hcl.Expression {
+		expr, diags := hclsyntax.ParseExpression([]byte(src), "main.tf", start)
 		if diags.HasErrors() {
 			t.Fatal(diags)
 		}
 		return expr
+	}
+	parse := func(src string) hcl.Expression {
+		return parseWithPos(src, hcl.InitialPos)
 	}
 
 	tests := []struct {
@@ -666,6 +677,23 @@ variable "foo" {
 }`,
 		},
 		{
+			name:  "expr type",
+			input: parseWithPos("instance_type", hcl.Pos{Line: 3, Column: 21, Byte: 54}),
+			ty:    exprCty,
+			want: map[string]any{
+				"value": "instance_type",
+				"range": map[string]any{
+					"filename": "main.tf",
+					"start":    map[string]int{"line": 3, "column": 21, "byte": 54},
+					"end":      map[string]int{"line": 3, "column": 34, "byte": 67},
+				},
+			},
+			source: `
+resource "aws_instance" "main" {
+  ignore_changes = [instance_type]
+}`,
+		},
+		{
 			name:  "invalid type",
 			input: hcl.StaticExpr(cty.StringVal("foo"), hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}),
 			ty:    cty.Number,
@@ -687,7 +715,7 @@ variable "foo" {
 				}
 				return
 			}
-			if err == nil && test.err != "" {
+			if test.err != "" {
 				t.Fatal("should return an error, but it does not")
 			}
 

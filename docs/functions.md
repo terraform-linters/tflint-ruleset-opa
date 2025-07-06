@@ -795,6 +795,170 @@ Returns:
 
 - `range` (range): a range for [DIR]/main.tf:1:1
 
+## `hcl.expr_list`
+
+```rego
+exprs := hcl.expr_list(expr)
+```
+
+Extract a list of expressions from the given static list expression.
+This is equivalent to [`hcl.ExprList`](https://github.com/hashicorp/hcl/blob/v2.24.0/expr_list.go#L17).
+
+- `expr` (raw_expr): static list expression which is retrieved as an [`expr` type](./schema.md#expr-type).
+
+Returns:
+
+- `exprs` (array[raw_expr]): expressions as elements of the list.
+
+Types:
+
+|Name|Type|
+|---|---|
+|`raw_expr`|`object<value: string, range: range>`|
+
+Examples:
+
+```hcl
+resource "aws_instance" "main" {
+  lifecycle {
+    ignore_changes = [key_name, tags]
+  }
+}
+```
+
+```rego
+instances := terraform.resources("*", {"lifecycle": {"ignore_changes": "expr"}}, {"expand_mode": "none"})
+hcl.expr_list(instances[i].config.lifecycle[j].config.ignore_changes)
+```
+
+```json
+[
+  {
+    "value": "key_name",
+    "range": {...}
+  },
+  {
+    "value": "tags",
+    "range": {...}
+  }
+]
+```
+
+## `hcl.expr_map`
+
+```rego
+pairs := hcl.expr_map(expr)
+```
+
+Extract a list of key value pairs from the given static map expression.
+This is equivalent to [hcl.ExprMap](https://github.com/hashicorp/hcl/blob/v2.24.0/expr_map.go#L17).
+
+- `expr` (raw_expr): static map expression which is retrieved as an [`expr` type](./schema.md#expr-type).
+
+Returns:
+
+- `pairs` (array[key_value]): key value pairs of the map as expressions.
+
+Types:
+
+|Name|Type|
+|---|---|
+|`key_value`|`object<key: raw_expr, value: raw_expr>`|
+
+Examples:
+
+```hcl
+module "tunnel" {
+  source    = "./tunnel"
+  providers = {
+    aws.src = aws.usw1
+    aws.dst = aws.usw2
+  }
+}
+```
+
+```rego
+calls := terraform.module_calls({"providers": "expr"})
+hcl.expr_map(calls[i].config.providers)
+```
+
+```json
+[
+  {
+    "key": {
+      "value": "aws.src",
+      "range": {...}
+    },
+    "value": {
+      "value": "aws.usw1",
+      "range": {...}
+    }
+  },
+  {
+    "key": {
+      "value": "aws.dst",
+      "range": {...}
+    },
+    "value": {
+      "value": "aws.usw2",
+      "range": {...}
+    }
+  }
+]
+```
+
+## `hcl.expr_call`
+
+```rego
+call := hcl.expr_call(expr)
+```
+
+Extract the function name and arguments from the given function call expression.
+This is equivalent to [hcl.ExprCall](https://github.com/hashicorp/hcl/blob/v2.24.0/expr_call.go#L17).
+
+- `expr` (raw_expr): function call expression which is retrieved as an [`expr` type](./schema.md#expr-type).
+
+Returns:
+
+- `call` (call): function call object.
+
+Types:
+
+|Name|Type|
+|---|---|
+|`call`|`object<name: string, name_range: range, arguments: array[raw_expr], args_range: range>`|
+
+Examples:
+
+```hcl
+resource "aws_instance" "main" {
+  ami = provider::custom::get_ami_id("web", "v0.9")
+}
+```
+
+```rego
+instances := terraform.resources("aws_instance", {"ami": "expr"})
+hcl.expr_call(instances[i].config.ami)
+```
+
+```json
+{
+  "name": "provider::custom::get_ami_id",
+  "name_range": {...},
+  "arguments": [
+    {
+      "value": "\"web\"",
+      "range": {...}
+    },
+    {
+      "value": "\"v0.9\"",
+      "range": {...}
+    }
+  ],
+  "args_range": {...}
+}
+```
+
 ## `tflint.issue`
 
 ```rego
