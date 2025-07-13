@@ -1,0 +1,65 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_require_lifecycle_ignore_tags",
+        "severity": "error",
+        "link": "policies/main.rego:5"
+      },
+      "message": "Resource aws_instance.invalid must have lifecycle.ignore_changes include \"tags\"",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 9,
+          "column": 1
+        },
+        "end": {
+          "line": 9,
+          "column": 34
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_deny_deprecated_ami_version",
+        "severity": "error",
+        "link": "policies/main.rego:42"
+      },
+      "message": "get_ami_id function should be called with v1",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 9,
+          "column": 1
+        },
+        "end": {
+          "line": 9,
+          "column": 34
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_deny_deprecated_regions",
+        "severity": "error",
+        "link": "policies/main.rego:25"
+      },
+      "message": "deprecated region reference found",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 24,
+          "column": 15
+        },
+        "end": {
+          "line": 26,
+          "column": 4
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/ext/typeexpr"
@@ -24,6 +25,10 @@ var schemaTy = types.NewObject(
 	types.NewDynamicProperty(types.S, types.A),
 )
 
+// Capsule type corresponding to "expr" in the extended schema type syntax.
+// It is not intended as a general capsule type in the cty type system, but acts as the identifier for the keyword.
+var exprCty cty.Type = cty.Capsule("expr", reflect.TypeOf((*hcl.Expression)(nil)))
+
 func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*hclext.BodySchema, map[string]cty.Type, error) {
 	schema := &hclext.BodySchema{}
 
@@ -32,13 +37,19 @@ func jsonToSchema(in map[string]any, tyMap map[string]cty.Type, path string) (*h
 
 		switch cv := v.(type) {
 		case string:
-			expr, diags := hclsyntax.ParseExpression([]byte(cv), "", hcl.InitialPos)
-			if diags.HasErrors() {
-				return schema, tyMap, fmt.Errorf("type expr parse error in %s; %s", key, withoutSubject(diags))
-			}
-			ty, diags := typeexpr.TypeConstraint(expr)
-			if diags.HasErrors() {
-				return schema, tyMap, fmt.Errorf("type constraint parse error in %s; %s", key, withoutSubject(diags))
+			var ty cty.Type
+			if cv == "expr" {
+				// "expr" is a special type that allows you to get the raw expression without evaluating it.
+				ty = exprCty
+			} else {
+				expr, diags := hclsyntax.ParseExpression([]byte(cv), "", hcl.InitialPos)
+				if diags.HasErrors() {
+					return schema, tyMap, fmt.Errorf("type expr parse error in %s; %s", key, withoutSubject(diags))
+				}
+				ty, diags = typeexpr.TypeConstraint(expr)
+				if diags.HasErrors() {
+					return schema, tyMap, fmt.Errorf("type constraint parse error in %s; %s", key, withoutSubject(diags))
+				}
 			}
 			tyMap[key] = ty
 
@@ -278,6 +289,21 @@ var exprTy = types.NewObject(
 )
 
 func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, runner tflint.Runner) (map[string]any, error) {
+	ty, exists := tyMap[path]
+	if !exists {
+		// should never happen
+		panic(fmt.Sprintf("cannot get type of %s", path))
+	}
+	// For the "expr" type, the expression is not evaluated
+	// and the "value" is the raw expression syntax.
+	if ty == exprCty {
+		file, err := runner.GetFile(expr.Range().Filename)
+		if err != nil {
+			return map[string]any{}, fmt.Errorf("type error in %s; %w", expr.Range(), err)
+		}
+		return rawExprToJSON(expr, file.Bytes), nil
+	}
+
 	ret := map[string]any{
 		"unknown":   false,
 		"sensitive": false,
@@ -311,17 +337,11 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 		return ret, nil
 	}
 
-	ty, exists := tyMap[path]
-	if !exists {
-		// should never happen
-		panic(fmt.Sprintf("cannot get type of %s", path))
-	}
 	if ty.HasDynamicTypes() {
 		// If a type has "any", it will be converted to JSON as a dynamic type, (e.g. {"value": 1, "type": "number"})
 		// so it will take advantage of the inferred type.
 		ty = value.Type()
 	}
-
 	value, err = convert.Convert(value, ty)
 	if err != nil {
 		return ret, fmt.Errorf("type error in %s; %w", expr.Range(), err)
@@ -340,6 +360,24 @@ func exprToJSON(expr hcl.Expression, tyMap map[string]cty.Type, path string, run
 	ret["value"] = val
 
 	return ret, nil
+}
+
+// raw_expr (object<value: string, range: range>) representation of a raw expression. This is a subset of the expr type.
+var rawExprTy = types.NewObject(
+	[]*types.StaticProperty{
+		types.NewStaticProperty("value", types.S),
+		types.NewStaticProperty("range", rangeTy),
+	},
+	nil,
+)
+
+func rawExprToJSON(expr hcl.Expression, src []byte) map[string]any {
+	// "unknown", "sensitive", and "ephemeral" are undefined
+	// because the "value" has not been evaluated.
+	return map[string]any{
+		"value": string(expr.Range().SliceBytes(src)),
+		"range": rangeToJSON(expr.Range()),
+	}
 }
 
 // nested_block (object<config: object[string: any<expr, array[nested_block]>], labels: array[string], decl_range: range>) representation of a nested block

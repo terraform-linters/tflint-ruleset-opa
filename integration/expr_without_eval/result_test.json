@@ -1,0 +1,125 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_wrong_ignore_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:36"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_correct_ignore_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:48"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_wrong_ami_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:61"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_correct_ami_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:73"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_wrong_region_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:106"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    },
+    {
+      "rule": {
+        "name": "opa_test_correct_region_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:118"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}
