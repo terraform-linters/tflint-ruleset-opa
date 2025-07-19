@@ -1,4 +1,4 @@
-package opa
+package funcs
 
 import (
 	"encoding/json"
@@ -423,33 +423,6 @@ func nestedBlockToJSON(block *hclext.Block, tyMap map[string]cty.Type, path stri
 		"labels":     block.Labels,
 		"decl_range": rangeToJSON(block.DefRange),
 	}, nil
-}
-
-// issue (object<msg: string, range: range>) message and source range
-var issueTy = types.NewObject(
-	[]*types.StaticProperty{
-		types.NewStaticProperty("msg", types.S),
-		types.NewStaticProperty("range", rangeTy),
-	},
-	nil,
-)
-
-func jsonToIssue(in any, path string) (*Issue, error) {
-	ret, err := jsonToObject(in, path)
-	if err != nil {
-		return nil, err
-	}
-
-	msg, err := jsonToString(ret["msg"], fmt.Sprintf("%s.msg", path))
-	if err != nil {
-		return nil, err
-	}
-	rng, err := jsonToRange(ret["range"], fmt.Sprintf("%s.range", path))
-	if err != nil {
-		return nil, err
-	}
-
-	return &Issue{Message: msg, Range: rng}, nil
 }
 
 // range (object<filename: string, start: pos, end: pos>) range of a source file

@@ -1,4 +1,4 @@
-package opa
+package tester
 
 import (
 	"errors"
@@ -134,7 +134,7 @@ resource "aws_instance" "foo" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
@@ -160,7 +160,7 @@ func TestGetModuleContent_json(t *testing.T) {
 		"main.tf.json": `{"variable": {"foo": {"type": "string"}}}`,
 	}
 
-	runner, diags := NewTestRunner(files)
+	runner, diags := NewRunner(files)
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -251,7 +251,7 @@ variable "instance_type" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
@@ -264,7 +264,7 @@ variable "instance_type" {
 				}
 				return
 			}
-			if err == nil && test.err != nil {
+			if test.err != nil {
 				t.Fatal("should return an error, but it does not")
 			}
 

@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
-	"github.com/hashicorp/hcl/v2"
 	"github.com/open-policy-agent/opa/v1/ast"
 	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/open-policy-agent/opa/v1/rego"
@@ -19,6 +18,7 @@ import (
 	"github.com/open-policy-agent/opa/v1/version"
 	"github.com/terraform-linters/tflint-plugin-sdk/logger"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
+	"github.com/terraform-linters/tflint-ruleset-opa/opa/funcs"
 )
 
 // Engine evaluates policies and returns issues.
@@ -57,12 +57,6 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 	}, nil
 }
 
-// Issue is the result of the query.
-type Issue struct {
-	Message string
-	Range   hcl.Range
-}
-
 // RunQuery executes a query referencing a rule and returns the generated
 // Set document as Result.
 // rego.ResultSet is parsed according to the following conventions:
@@ -81,7 +75,7 @@ type Issue struct {
 //	}
 //
 // ```
-func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
+func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*funcs.Issue, error) {
 	traceEnabled := e.traceWriter != nil
 
 	options := []func(*rego.Rego){
@@ -121,7 +115,7 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
 		rego.PrintTrace(e.traceWriter, instance)
 	}
 
-	var issues []*Issue
+	var issues []*funcs.Issue
 	for _, result := range rs {
 		for _, expr := range result.Expressions {
 			values, ok := expr.Value.([]any)
@@ -130,7 +124,7 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
 			}
 
 			for _, value := range values {
-				ret, err := jsonToIssue(value, "issue")
+				ret, err := funcs.AsIssue(value)
 				if err != nil {
 					return nil, err
 				}
@@ -147,7 +141,7 @@ func (e *Engine) RunQuery(rule *Rule, runner tflint.Runner) ([]*Issue, error) {
 //
 // A runner is provided, but in many cases the runner is never actually used,
 // as test runners are generated inside mock functions. See TesterMockFunctions for details.
-func (e *Engine) RunTest(rule *TestRule, runner tflint.Runner) ([]*Issue, error) {
+func (e *Engine) RunTest(rule *TestRule, runner tflint.Runner) ([]*funcs.Issue, error) {
 	traceEnabled := e.traceWriter != nil
 
 	testRunner := tester.NewRunner().
@@ -164,11 +158,11 @@ func (e *Engine) RunTest(rule *TestRule, runner tflint.Runner) ([]*Issue, error)
 		return nil, err
 	}
 
-	var issues []*Issue
+	var issues []*funcs.Issue
 	for ret := range ch {
 		if ret.Error != nil {
 			// Location is not included as it is not an issue for HCL.
-			issues = append(issues, &Issue{
+			issues = append(issues, &funcs.Issue{
 				Message: fmt.Sprintf("test errored: %s", ret.Error),
 			})
 			continue
@@ -182,7 +176,7 @@ func (e *Engine) RunTest(rule *TestRule, runner tflint.Runner) ([]*Issue, error)
 		}
 
 		if ret.Fail {
-			issues = append(issues, &Issue{
+			issues = append(issues, &funcs.Issue{
 				Message: "test failed",
 			})
 		}

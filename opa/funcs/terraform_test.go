@@ -1,15 +1,13 @@
-package opa
+package funcs
 
 import (
 	"path/filepath"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/open-policy-agent/opa/v1/ast"
 	"github.com/open-policy-agent/opa/v1/rego"
-	"github.com/zclconf/go-cty/cty"
+	"github.com/terraform-linters/tflint-ruleset-opa/opa/tester"
 )
 
 func TestResourcesFunc(t *testing.T) {
@@ -270,13 +268,13 @@ resource "aws_instance" "main" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := resourcesFunc(runner).Func(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := ResourcesFunc(runner).Impl(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -286,7 +284,7 @@ resource "aws_instance" "main" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction3(resourcesFunc).Func(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction3(ResourcesFunc).Impl(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -432,13 +430,13 @@ check "scoped" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := dataSourcesFunc(runner).Func(ctx, ast.NewTerm(dataType), ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := DataSourcesFunc(runner).Impl(ctx, ast.NewTerm(dataType), ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -448,7 +446,7 @@ check "scoped" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction3(dataSourcesFunc).Func(ctx, ast.NewTerm(dataType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction3(DataSourcesFunc).Impl(ctx, ast.NewTerm(dataType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -536,13 +534,13 @@ module "aws_instance" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := moduleCallsFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := ModuleCallsFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -552,7 +550,7 @@ module "aws_instance" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(moduleCallsFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(ModuleCallsFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -640,13 +638,13 @@ provider "aws" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := providersFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := ProvidersFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -656,7 +654,7 @@ provider "aws" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(providersFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(ProvidersFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -771,13 +769,13 @@ terraform {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := settingsFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := SettingsFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -787,7 +785,7 @@ terraform {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(settingsFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(SettingsFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -875,13 +873,13 @@ variable "foo" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := variablesFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := VariablesFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -891,7 +889,7 @@ variable "foo" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(variablesFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(VariablesFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -979,13 +977,13 @@ output "bar" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := outputsFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := OutputsFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -995,7 +993,7 @@ output "bar" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(outputsFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(OutputsFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1075,13 +1073,13 @@ locals {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := localsFunc(runner).Func(ctx, ast.NewTerm(options))
+			got, err := LocalsFunc(runner).Impl(ctx, ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1091,7 +1089,7 @@ locals {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction1(localsFunc).Func(ctx, ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction1(LocalsFunc).Impl(ctx, ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1179,13 +1177,13 @@ variable "foo" {}`,
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := movedBlocksFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := MovedBlocksFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1195,7 +1193,7 @@ variable "foo" {}`,
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(movedBlocksFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(MovedBlocksFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1283,13 +1281,13 @@ import {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := importsFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := ImportsFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1299,7 +1297,7 @@ import {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(importsFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(ImportsFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1414,13 +1412,13 @@ check "health_check" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := checksFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := ChecksFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1430,7 +1428,7 @@ check "health_check" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(checksFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(ChecksFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1518,13 +1516,13 @@ variable "foo" {}`,
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := removedBlocksFunc(runner).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := RemovedBlocksFunc(runner).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1534,7 +1532,7 @@ variable "foo" {}`,
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction2(removedBlocksFunc).Func(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction2(RemovedBlocksFunc).Impl(ctx, ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1629,13 +1627,13 @@ ephemeral "aws_secretsmanager_secret_version" "db_password" {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.config})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := ephemeralResourcesFunc(runner).Func(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options))
+			got, err := EphemeralResourcesFunc(runner).Impl(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1645,7 +1643,7 @@ ephemeral "aws_secretsmanager_secret_version" "db_password" {
 			}
 
 			ctx = rego.BuiltinContext{}
-			got, err = mockFunction3(ephemeralResourcesFunc).Func(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			got, err = MockFunction3(EphemeralResourcesFunc).Impl(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -1689,415 +1687,13 @@ func TestModuleRangeFunc(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(test.config)
+			runner, diags := tester.NewRunner(test.config)
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
 
 			ctx := rego.BuiltinContext{}
-			got, err := moduleRangeFunc(runner).Func(ctx, []*ast.Term{})
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
-				t.Error(diff)
-			}
-		})
-	}
-}
-
-func TestExprListFunc(t *testing.T) {
-	parse := func(src string, start hcl.Pos) hcl.Expression {
-		expr, diags := hclsyntax.ParseExpression([]byte(src), "main.tf", start)
-		if diags.HasErrors() {
-			t.Fatal(diags)
-		}
-		return expr
-	}
-
-	tests := []struct {
-		name   string
-		expr   hcl.Expression
-		want   []map[string]any
-		source string
-	}{
-		{
-			name: "static list",
-			expr: parse(`[foo, bar]`, hcl.Pos{Line: 1, Column: 8, Byte: 7}),
-			want: []map[string]any{
-				{
-					"value": "foo",
-					"range": map[string]any{
-						"filename": "main.tf",
-						"start": map[string]int{
-							"line":   1,
-							"column": 9,
-							"byte":   8,
-						},
-						"end": map[string]int{
-							"line":   1,
-							"column": 12,
-							"byte":   11,
-						},
-					},
-				},
-				{
-					"value": "bar",
-					"range": map[string]any{
-						"filename": "main.tf",
-						"start": map[string]int{
-							"line":   1,
-							"column": 14,
-							"byte":   13,
-						},
-						"end": map[string]int{
-							"line":   1,
-							"column": 17,
-							"byte":   16,
-						},
-					},
-				},
-			},
-			source: "attr = [foo, bar]",
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.source})
-			if diags.HasErrors() {
-				t.Fatal(diags)
-			}
-
-			exprJSON, err := exprToJSON(test.expr, map[string]cty.Type{"expr": exprCty}, "expr", runner)
-			if err != nil {
-				t.Fatal(err)
-			}
-			input, err := ast.InterfaceToValue(exprJSON)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			ctx := rego.BuiltinContext{}
-			got, err := exprListFunc().Func(ctx, ast.NewTerm(input))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			want, err := ast.InterfaceToValue(test.want)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
-				t.Error(diff)
-			}
-		})
-	}
-}
-
-func TestExprMapFunc(t *testing.T) {
-	parse := func(src string, start hcl.Pos) hcl.Expression {
-		expr, diags := hclsyntax.ParseExpression([]byte(src), "main.tf", start)
-		if diags.HasErrors() {
-			t.Fatal(diags)
-		}
-		return expr
-	}
-
-	tests := []struct {
-		name   string
-		expr   hcl.Expression
-		want   []map[string]any
-		source string
-	}{
-		{
-			name: "static map",
-			expr: parse(`{ foo = 1, bar = 2 }`, hcl.Pos{Line: 1, Column: 8, Byte: 7}),
-			want: []map[string]any{
-				{
-					"key": map[string]any{
-						"value": "foo",
-						"range": map[string]any{
-							"filename": "main.tf",
-							"start": map[string]int{
-								"line":   1,
-								"column": 10,
-								"byte":   9,
-							},
-							"end": map[string]int{
-								"line":   1,
-								"column": 13,
-								"byte":   12,
-							},
-						},
-					},
-					"value": map[string]any{
-						"value": "1",
-						"range": map[string]any{
-							"filename": "main.tf",
-							"start": map[string]int{
-								"line":   1,
-								"column": 16,
-								"byte":   15,
-							},
-							"end": map[string]int{
-								"line":   1,
-								"column": 17,
-								"byte":   16,
-							},
-						},
-					},
-				},
-				{
-					"key": map[string]any{
-						"value": "bar",
-						"range": map[string]any{
-							"filename": "main.tf",
-							"start": map[string]int{
-								"line":   1,
-								"column": 19,
-								"byte":   18,
-							},
-							"end": map[string]int{
-								"line":   1,
-								"column": 22,
-								"byte":   21,
-							},
-						},
-					},
-					"value": map[string]any{
-						"value": "2",
-						"range": map[string]any{
-							"filename": "main.tf",
-							"start": map[string]int{
-								"line":   1,
-								"column": 25,
-								"byte":   24,
-							},
-							"end": map[string]int{
-								"line":   1,
-								"column": 26,
-								"byte":   25,
-							},
-						},
-					},
-				},
-			},
-			source: "attr = { foo = 1, bar = 2 }",
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.source})
-			if diags.HasErrors() {
-				t.Fatal(diags)
-			}
-
-			exprJSON, err := exprToJSON(test.expr, map[string]cty.Type{"expr": exprCty}, "expr", runner)
-			if err != nil {
-				t.Fatal(err)
-			}
-			input, err := ast.InterfaceToValue(exprJSON)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			ctx := rego.BuiltinContext{}
-			got, err := exprMapFunc().Func(ctx, ast.NewTerm(input))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			want, err := ast.InterfaceToValue(test.want)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
-				t.Error(diff)
-			}
-		})
-	}
-}
-
-func TestExprCallFunc(t *testing.T) {
-	parse := func(src string, start hcl.Pos) hcl.Expression {
-		expr, diags := hclsyntax.ParseExpression([]byte(src), "main.tf", start)
-		if diags.HasErrors() {
-			t.Fatal(diags)
-		}
-		return expr
-	}
-
-	tests := []struct {
-		name   string
-		expr   hcl.Expression
-		want   map[string]any
-		source string
-	}{
-		{
-			name: "static call",
-			expr: parse(`foo("bar", "baz")`, hcl.Pos{Line: 1, Column: 8, Byte: 7}),
-			want: map[string]any{
-				"name": "foo",
-				"name_range": map[string]any{
-					"filename": "main.tf",
-					"start": map[string]int{
-						"line":   1,
-						"column": 8,
-						"byte":   7,
-					},
-					"end": map[string]int{
-						"line":   1,
-						"column": 11,
-						"byte":   10,
-					},
-				},
-				"arguments": []map[string]any{
-					{
-						"value": `"bar"`,
-						"range": map[string]any{
-							"filename": "main.tf",
-							"start": map[string]int{
-								"line":   1,
-								"column": 12,
-								"byte":   11,
-							},
-							"end": map[string]int{
-								"line":   1,
-								"column": 17,
-								"byte":   16,
-							},
-						},
-					},
-					{
-						"value": `"baz"`,
-						"range": map[string]any{
-							"filename": "main.tf",
-							"start": map[string]int{
-								"line":   1,
-								"column": 19,
-								"byte":   18,
-							},
-							"end": map[string]int{
-								"line":   1,
-								"column": 24,
-								"byte":   23,
-							},
-						},
-					},
-				},
-				"args_range": map[string]any{
-					"filename": "main.tf",
-					"start": map[string]int{
-						"line":   1,
-						"column": 11,
-						"byte":   10,
-					},
-					"end": map[string]int{
-						"line":   1,
-						"column": 25,
-						"byte":   24,
-					},
-				},
-			},
-			source: `attr = foo("bar", "baz")`,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.source})
-			if diags.HasErrors() {
-				t.Fatal(diags)
-			}
-
-			exprJSON, err := exprToJSON(test.expr, map[string]cty.Type{"expr": exprCty}, "expr", runner)
-			if err != nil {
-				t.Fatal(err)
-			}
-			input, err := ast.InterfaceToValue(exprJSON)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			ctx := rego.BuiltinContext{}
-			got, err := exprCallFunc().Func(ctx, ast.NewTerm(input))
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			want, err := ast.InterfaceToValue(test.want)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
-				t.Error(diff)
-			}
-		})
-	}
-}
-
-func TestIssueFunc(t *testing.T) {
-	tests := []struct {
-		name string
-		msg  string
-		rng  map[string]any
-		want map[string]any
-	}{
-		{
-			name: "issue",
-			msg:  "test",
-			rng: map[string]any{
-				"filename": "main.tf",
-				"start": map[string]int{
-					"line":   1,
-					"column": 1,
-					"byte":   0,
-				},
-				"end": map[string]int{
-					"line":   1,
-					"column": 1,
-					"byte":   0,
-				},
-			},
-			want: map[string]any{
-				"msg": "test",
-				"range": map[string]any{
-					"filename": "main.tf",
-					"start": map[string]int{
-						"line":   1,
-						"column": 1,
-						"byte":   0,
-					},
-					"end": map[string]int{
-						"line":   1,
-						"column": 1,
-						"byte":   0,
-					},
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			msg, err := ast.InterfaceToValue(test.msg)
-			if err != nil {
-				t.Fatal(err)
-			}
-			rng, err := ast.InterfaceToValue(test.rng)
-			if err != nil {
-				t.Fatal(err)
-			}
-			want, err := ast.InterfaceToValue(test.want)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			ctx := rego.BuiltinContext{}
-			got, err := issueFunc().Func(ctx, ast.NewTerm(msg), ast.NewTerm(rng))
+			got, err := ModuleRangeFunc(runner).Impl(ctx, []*ast.Term{})
 			if err != nil {
 				t.Fatal(err)
 			}
