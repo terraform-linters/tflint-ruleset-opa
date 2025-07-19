@@ -1,4 +1,4 @@
-package opa
+package funcs
 
 import (
 	"encoding/json"
@@ -425,6 +425,12 @@ func nestedBlockToJSON(block *hclext.Block, tyMap map[string]cty.Type, path stri
 	}, nil
 }
 
+// Issue is the result of the query.
+type Issue struct {
+	Message string
+	Range   hcl.Range
+}
+
 // issue (object<msg: string, range: range>) message and source range
 var issueTy = types.NewObject(
 	[]*types.StaticProperty{
@@ -434,7 +440,7 @@ var issueTy = types.NewObject(
 	nil,
 )
 
-func jsonToIssue(in any, path string) (*Issue, error) {
+func JsonToIssue(in any, path string) (*Issue, error) {
 	ret, err := jsonToObject(in, path)
 	if err != nil {
 		return nil, err
