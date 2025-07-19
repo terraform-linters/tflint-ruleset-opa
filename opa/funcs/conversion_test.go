@@ -1,4 +1,4 @@
-package opa
+package funcs
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
+	"github.com/terraform-linters/tflint-ruleset-opa/opa/tester"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -97,7 +98,7 @@ func TestJSONToSchema(t *testing.T) {
 				}
 				return
 			}
-			if err == nil && test.err != "" {
+			if test.err != "" {
 				t.Fatal("should return an error, but it does not")
 			}
 
@@ -159,7 +160,7 @@ func TestJSONToOption(t *testing.T) {
 				}
 				return
 			}
-			if err == nil && test.err != "" {
+			if test.err != "" {
 				t.Fatal("should return an error, but it does not")
 			}
 
@@ -196,7 +197,7 @@ func TestTypedBlocksToJSON(t *testing.T) {
 		},
 	}
 
-	runner, diags := NewTestRunner(map[string]string{})
+	runner, diags := tester.NewRunner(map[string]string{})
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -240,7 +241,7 @@ func TestNamedBlocksToJSON(t *testing.T) {
 		},
 	}
 
-	runner, diags := NewTestRunner(map[string]string{})
+	runner, diags := tester.NewRunner(map[string]string{})
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -282,7 +283,7 @@ func TestBlocksToJSON(t *testing.T) {
 		},
 	}
 
-	runner, diags := NewTestRunner(map[string]string{})
+	runner, diags := tester.NewRunner(map[string]string{})
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -328,7 +329,7 @@ func TestLocalsToJSON(t *testing.T) {
 		},
 	}
 
-	runner, diags := NewTestRunner(map[string]string{})
+	runner, diags := tester.NewRunner(map[string]string{})
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -396,7 +397,7 @@ func TestBodyToJSON(t *testing.T) {
 		},
 	}
 
-	runner, diags := NewTestRunner(map[string]string{})
+	runner, diags := tester.NewRunner(map[string]string{})
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -703,7 +704,7 @@ resource "aws_instance" "main" {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			runner, diags := NewTestRunner(map[string]string{"main.tf": test.source})
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.source})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
@@ -752,7 +753,7 @@ func TestNestedBlockToJSON(t *testing.T) {
 		},
 	}
 
-	runner, diags := NewTestRunner(map[string]string{})
+	runner, diags := tester.NewRunner(map[string]string{})
 	if diags.HasErrors() {
 		t.Fatal(diags)
 	}
@@ -819,14 +820,14 @@ func TestJSONToIssue(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got, err := jsonToIssue(test.input, "issue")
+			got, err := JsonToIssue(test.input, "issue")
 			if err != nil {
 				if err.Error() != test.err {
 					t.Fatalf(`expect "%s", but got "%s"`, test.err, err.Error())
 				}
 				return
 			}
-			if err == nil && test.err != "" {
+			if test.err != "" {
 				t.Fatal("should return an error, but it does not")
 			}
 
@@ -965,7 +966,7 @@ func TestJSONToRange(t *testing.T) {
 				}
 				return
 			}
-			if err == nil && test.err != "" {
+			if test.err != "" {
 				t.Fatal("should return an error, but it does not")
 			}
 

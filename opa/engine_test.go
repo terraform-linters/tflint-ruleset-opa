@@ -10,6 +10,8 @@ import (
 	"github.com/liamg/memoryfs"
 	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/open-policy-agent/opa/v1/version"
+	"github.com/terraform-linters/tflint-ruleset-opa/opa/funcs"
+	"github.com/terraform-linters/tflint-ruleset-opa/opa/tester"
 )
 
 func TestRunQuery(t *testing.T) {
@@ -17,7 +19,7 @@ func TestRunQuery(t *testing.T) {
 		name     string
 		policies map[string]string
 		config   map[string]string
-		want     []*Issue
+		want     []*funcs.Issue
 		err      string
 	}{
 		{
@@ -32,7 +34,7 @@ deny_test contains issue if {
 	issue := tflint.issue("example issue", terraform.module_range())
 }`,
 			},
-			want: []*Issue{{Message: "example issue", Range: hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}}},
+			want: []*funcs.Issue{{Message: "example issue", Range: hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}}},
 		},
 		{
 			name: "store data",
@@ -47,7 +49,7 @@ deny_test contains issue if {
 }`,
 				"data.yaml": `foo: bar`,
 			},
-			want: []*Issue{{Message: "data.foo is bar", Range: hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}}},
+			want: []*funcs.Issue{{Message: "data.foo is bar", Range: hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}}},
 		},
 		{
 			name: "terraform functions",
@@ -72,7 +74,7 @@ resource "aws_instance" "main" {
 	instance_type = "t1.micro"
 }`,
 			},
-			want: []*Issue{{Message: "t2.micro is only allowed", Range: hcl.Range{Filename: "main.tf", Start: hcl.Pos{Line: 3}, End: hcl.Pos{Line: 3}}}},
+			want: []*funcs.Issue{{Message: "t2.micro is only allowed", Range: hcl.Range{Filename: "main.tf", Start: hcl.Pos{Line: 3}, End: hcl.Pos{Line: 3}}}},
 		},
 		{
 			name: "runtime",
@@ -86,7 +88,7 @@ deny_test contains issue if {
 	issue := tflint.issue(sprintf("OPA version: %s", [opa.runtime().version]), terraform.module_range())
 }`,
 			},
-			want: []*Issue{{Message: fmt.Sprintf("OPA version: %s", version.Version), Range: hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}}},
+			want: []*funcs.Issue{{Message: fmt.Sprintf("OPA version: %s", version.Version), Range: hcl.Range{Filename: "main.tf", Start: hcl.InitialPos, End: hcl.InitialPos}}},
 		},
 		{
 			name: "strict mode",
@@ -152,7 +154,7 @@ deny_test if {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(test.config)
+			runner, diags := tester.NewRunner(test.config)
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
@@ -180,7 +182,7 @@ func TestRunTest(t *testing.T) {
 	tests := []struct {
 		name     string
 		policies map[string]string
-		want     []*Issue
+		want     []*funcs.Issue
 		err      string
 	}{
 		{
@@ -195,7 +197,7 @@ test_deny if {
 	"foo" == "bar"
 }`,
 			},
-			want: []*Issue{{Message: "test failed"}},
+			want: []*funcs.Issue{{Message: "test failed"}},
 		},
 		{
 			name: "store data",
@@ -210,7 +212,7 @@ test_deny if {
 }`,
 				"data.yaml": `foo: bar`,
 			},
-			want: []*Issue{{Message: "test failed"}},
+			want: []*funcs.Issue{{Message: "test failed"}},
 		},
 		{
 			name: "terraform functions",
@@ -243,7 +245,7 @@ test_deny if {
 }
 				`,
 			},
-			want: []*Issue{{Message: "test failed"}},
+			want: []*funcs.Issue{{Message: "test failed"}},
 		},
 		{
 			name: "runtime",
@@ -257,7 +259,7 @@ test_deny if {
 	"foo" == opa.runtime().version
 }`,
 			},
-			want: []*Issue{{Message: "test failed"}},
+			want: []*funcs.Issue{{Message: "test failed"}},
 		},
 	}
 
@@ -278,7 +280,7 @@ test_deny if {
 				t.Fatal(err)
 			}
 
-			runner, diags := NewTestRunner(map[string]string{})
+			runner, diags := tester.NewRunner(map[string]string{})
 			if diags.HasErrors() {
 				t.Fatal(diags)
 			}
