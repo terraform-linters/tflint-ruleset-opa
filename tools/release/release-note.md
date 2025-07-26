@@ -1,36 +1,32 @@
 ## What's Changed
 
-In the OPA ruleset v0.8, we upgraded the embedded OPA version from v0.70 to v1.2. This means that some deprecated features will no longer be available and policies will need to be rewritten. See also https://www.openpolicyagent.org/docs/v1.2.0/v0-upgrade
-
-If you use v0 syntax (without `if` and `contains` keywords in rule head declarations), it is recommended to use `opa fmt --write --v0-v1` to automatically rewrite your policy files. See also https://www.openpolicyagent.org/docs/v1.2.0/v0-upgrade/#upgrading-rego
-
-Another new feature worth mentioning is support for [ephemeral resources](https://developer.hashicorp.com/terraform/language/resources/ephemeral), which was added in Terraform v1.10. You can get "ephemeral" blocks by using the `terraform.ephemeral_resources` function. Also, because `ephemeral` attribute has been added in an expression, you can write policies such as "passwords must be ephemeral".
-
-### Breaking Changes
-* Promote OPA 1.0 by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/136
-
 ### Enhancements
-* Bump github.com/terraform-linters/tflint-plugin-sdk from 0.20.0 to 0.22.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/125
-* Add support for ephemeral mark by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/133
-* Add `terraform.ephemeral_resources` function by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/135
+* Bump github.com/open-policy-agent/opa from 1.2.0 to 1.3.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/146
+* Bump github.com/open-policy-agent/opa from 1.3.0 to 1.4.2 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/154
+* Bump github.com/open-policy-agent/opa from 1.4.2 to 1.5.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/157
+* Bump github.com/open-policy-agent/opa from 1.5.0 to 1.5.1 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/158
+* Bump github.com/open-policy-agent/opa from 1.5.1 to 1.6.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/163
+* Add "expr" type as a schema type by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/164
 
 ### Chores
-* release: Introduce Artifact Attestations by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/106
-* Bump goreleaser/goreleaser-action from 5 to 6 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/108
-* Bump github.com/hashicorp/hcl/v2 from 2.20.1 to 2.21.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/109
-* Bump github.com/open-policy-agent/opa from 0.64.1 to 0.65.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/107
-* Bump github.com/open-policy-agent/opa from 0.65.0 to 0.66.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/110
-* Bump github.com/open-policy-agent/opa from 0.66.0 to 0.69.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/118
-* Bump github.com/open-policy-agent/opa from 0.69.0 to 0.70.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/119
-* Bump github.com/hashicorp/hcl/v2 from 2.21.0 to 2.23.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/120
-* Bump actions/attest-build-provenance from 1 to 2 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/122
-* Bump github.com/zclconf/go-cty from 1.14.4 to 1.16.2 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/127
-* deps: Go 1.24 by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/130
-* Bump golang.org/x/net from 0.30.0 to 0.33.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/129
-* Bump github.com/open-policy-agent/opa from 0.70.0 to 1.2.0 by @dependabot in https://github.com/terraform-linters/tflint-ruleset-opa/pull/131
-* Enable Dependabot auto-merge by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/132
-* Add make release for release automation by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/137
-* Bump GoReleaser to v2 by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/138
+* Bump golang.org/x/net from 0.35.0 to 0.36.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/140
+* Pin GitHub Action versions by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/143
+* Bump actions/setup-go from 5.3.0 to 5.4.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/144
+* Bump goreleaser/goreleaser-action from 6.2.1 to 6.3.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/145
+* Bump golang.org/x/net from 0.37.0 to 0.38.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/149
+* Potential fix for code scanning alert no. 4: Incomplete regular expression for hostnames by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/150
+* Set workflow permissions explicitly by @wata727 in https://github.com/terraform-linters/tflint-ruleset-opa/pull/151
+* Bump actions/attest-build-provenance from 2.2.3 to 2.3.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/153
+* Bump actions/setup-go from 5.4.0 to 5.5.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/155
+* Bump github.com/zclconf/go-cty from 1.16.2 to 1.16.3 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/156
+* Bump actions/attest-build-provenance from 2.3.0 to 2.4.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/159
+* Bump sigstore/cosign-installer from 3.8.1 to 3.8.2 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/152
+* Bump sigstore/cosign-installer from 3.8.2 to 3.9.1 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/160
+* Bump github.com/hashicorp/hcl/v2 from 2.23.0 to 2.24.0 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/166
+* Decoupling the gorelease release pipeline  by @KingBain in https://github.com/terraform-linters/tflint-ruleset-opa/pull/167
+* Bump sigstore/cosign-installer from 3.9.1 to 3.9.2 by @dependabot[bot] in https://github.com/terraform-linters/tflint-ruleset-opa/pull/169
 
+## New Contributors
+* @KingBain made their first contribution in https://github.com/terraform-linters/tflint-ruleset-opa/pull/167
 
-**Full Changelog**: https://github.com/terraform-linters/tflint-ruleset-opa/compare/v0.7.0...v0.8.0
+**Full Changelog**: https://github.com/terraform-linters/tflint-ruleset-opa/compare/v0.8.0...v0.9.0
