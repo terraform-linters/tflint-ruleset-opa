@@ -1,4 +1,4 @@
-package opa
+package tester
 
 import (
 	"strings"
@@ -32,7 +32,7 @@ type variable struct {
 
 var _ tflint.Runner = (*testRunner)(nil)
 
-func NewTestRunner(files map[string]string) (*testRunner, hcl.Diagnostics) {
+func NewRunner(files map[string]string) (*testRunner, hcl.Diagnostics) {
 	runner := &testRunner{
 		files:     map[string]*hcl.File{},
 		variables: map[string]*variable{},
