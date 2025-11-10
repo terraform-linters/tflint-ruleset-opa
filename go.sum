@@ -119,8 +119,8 @@ github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 h1:C3w9PqII01/Oq
 github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822/go.mod h1:+n7T8mK8HuQTcFwEeznm/DIxMOiR9yIdICNftLE1DvQ=
 github.com/oklog/run v1.0.0 h1:Ru7dDtJNOyC66gQ5dQmaCa0qIsAUFY3sFpK1Xk8igrw=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
-github.com/open-policy-agent/opa v1.10.0 h1:CzWR/2OhZ5yHrqiyyB1Z37mqLMowifAiFSasjLxBBpk=
-github.com/open-policy-agent/opa v1.10.0/go.mod h1:7uPI3iRpOalJ0BhK6s1JALWPU9HvaV1XeBSSMZnr/PM=
+github.com/open-policy-agent/opa v1.10.1 h1:haIvxZSPky8HLjRrvQwWAjCPLg8JDFSZMbbG4yyUHgY=
+github.com/open-policy-agent/opa v1.10.1/go.mod h1:7uPI3iRpOalJ0BhK6s1JALWPU9HvaV1XeBSSMZnr/PM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
