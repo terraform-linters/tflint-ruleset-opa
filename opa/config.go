@@ -28,34 +28,35 @@ var (
 // If the environment variable is set, other directories will not be considered,
 // but if the current directory does not exist, it will fallback to the home directory.
 func (c *Config) policyDirs() ([]string, error) {
+	var expandedDirs []string
+
 	// Priority 1: policy_dirs from config
-	if len(c.PolicyDirs) > 0 {
-		var expandedDirs []string
-		for _, dir := range c.PolicyDirs {
+	for _, dir := range c.PolicyDirs {
+		expanded, err := homedir.Expand(dir)
+		if err != nil {
+			return nil, err
+		}
+		expandedDirs = append(expandedDirs, expanded)
+	}
+
+	if len(expandedDirs) > 0 {
+		return expandedDirs, nil
+	}
+
+	// Priority 2: TFLINT_OPA_POLICY_DIRS environment variable
+	// Supports multiple directories separated by `,`
+	for dir := range strings.SplitSeq(os.Getenv("TFLINT_OPA_POLICY_DIRS"), ",") {
+		dir = strings.TrimSpace(dir)
+		if dir != "" {
 			expanded, err := homedir.Expand(dir)
 			if err != nil {
 				return nil, err
 			}
 			expandedDirs = append(expandedDirs, expanded)
 		}
-		return expandedDirs, nil
 	}
 
-	// Priority 2: TFLINT_OPA_POLICY_DIRS environment variable
-	// Supports multiple directories separated by `,`
-	if envDirs := os.Getenv("TFLINT_OPA_POLICY_DIRS"); envDirs != "" {
-		dirs := strings.Split(envDirs, ",")
-		var expandedDirs []string
-		for _, dir := range dirs {
-			dir = strings.TrimSpace(dir)
-			if dir != "" {
-				expanded, err := homedir.Expand(dir)
-				if err != nil {
-					return nil, err
-				}
-				expandedDirs = append(expandedDirs, expanded)
-			}
-		}
+	if len(expandedDirs) > 0 {
 		return expandedDirs, nil
 	}
 
