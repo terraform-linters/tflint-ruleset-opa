@@ -40,7 +40,7 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		return diags
 	}
 
-	policyDir, err := r.config.policyDir()
+	policyDirs, err := r.config.policyDirs()
 	if err != nil {
 		// If you declare the directory in config or environment variables,
 		// os.ErrNotExist will not be returned, resulting in load errors
@@ -51,7 +51,7 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		return err
 	}
 
-	ret, err := loader.NewFileLoader().Filtered([]string{policyDir}, nil)
+	ret, err := loader.NewFileLoader().Filtered(policyDirs, nil)
 	if err != nil {
 		return fmt.Errorf("failed to load policies; %w", err)
 	}
