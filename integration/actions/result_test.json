@@ -1,0 +1,27 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_test_deny_deprecated_function_invokes_failed",
+        "severity": "error",
+        "link": "policies/main_test.rego:19"
+      },
+      "message": "test failed",
+      "range": {
+        "filename": "",
+        "start": {
+          "line": 0,
+          "column": 0
+        },
+        "end": {
+          "line": 0,
+          "column": 0
+        }
+      },
+      "callers": [],
+      "fixable": false,
+      "fixed": false
+    }
+  ],
+  "errors": []
+}

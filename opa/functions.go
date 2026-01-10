@@ -23,6 +23,7 @@ func Functions(runner tflint.Runner) []func(*rego.Rego) {
 		funcs.ChecksFunc(runner).Rego(),
 		funcs.RemovedBlocksFunc(runner).Rego(),
 		funcs.EphemeralResourcesFunc(runner).Rego(),
+		funcs.ActionsFunc(runner).Rego(),
 		funcs.ModuleRangeFunc(runner).Rego(),
 		funcs.ExprListFunc().Rego(),
 		funcs.ExprMapFunc().Rego(),
@@ -47,6 +48,7 @@ func TesterFunctions(runner tflint.Runner) []*tester.Builtin {
 		funcs.ChecksFunc(runner).Tester(),
 		funcs.RemovedBlocksFunc(runner).Tester(),
 		funcs.EphemeralResourcesFunc(runner).Tester(),
+		funcs.ActionsFunc(runner).Tester(),
 		funcs.ModuleRangeFunc(runner).Tester(),
 		funcs.ExprListFunc().Tester(),
 		funcs.ExprMapFunc().Tester(),
@@ -73,6 +75,7 @@ func MockFunctions() []func(*rego.Rego) {
 		funcs.MockFunction2(funcs.ChecksFunc).Rego(),
 		funcs.MockFunction2(funcs.RemovedBlocksFunc).Rego(),
 		funcs.MockFunction3(funcs.EphemeralResourcesFunc).Rego(),
+		funcs.MockFunction3(funcs.ActionsFunc).Rego(),
 	}
 }
 
@@ -92,5 +95,6 @@ func TesterMockFunctions() []*tester.Builtin {
 		funcs.MockFunction2(funcs.ChecksFunc).Tester(),
 		funcs.MockFunction2(funcs.RemovedBlocksFunc).Tester(),
 		funcs.MockFunction3(funcs.EphemeralResourcesFunc).Tester(),
+		funcs.MockFunction3(funcs.ActionsFunc).Tester(),
 	}
 }
