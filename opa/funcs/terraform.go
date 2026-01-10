@@ -511,6 +511,36 @@ func EphemeralResourcesFunc(runner tflint.Runner) *Function3 {
 	}
 }
 
+// terraform.actions: actions := terraform.actions(action_type, schema, options)
+//
+// Returns Terraform action blocks.
+//
+//	action_type (string)  action type to retrieve. "*" is a special character that returns all actions.
+//	schema      (schema)  schema for attributes referenced in rules.
+//	options     (options) options to change the retrieve/evaluate behavior.
+//
+// Returns:
+//
+//	actions (array[typed_block]) Terraform "action" blocks
+func ActionsFunc(runner tflint.Runner) *Function3 {
+	return &Function3{
+		Function: Function{
+			Decl: &rego.Function{
+				Name: "terraform.actions",
+				Decl: types.NewFunction(
+					types.Args(types.S, schemaTy, optionsTy),
+					types.NewArray(nil, typedBlockTy),
+				),
+				Memoize:          true,
+				Nondeterministic: true,
+			},
+		},
+		Impl: func(_ rego.BuiltinContext, resourceType *ast.Term, schema *ast.Term, options *ast.Term) (*ast.Term, error) {
+			return typedBlockFunc(resourceType, schema, options, "action", runner)
+		},
+	}
+}
+
 // terraform.module_range: range := terraform.module_range()
 //
 // Returns a range for the current Terraform module.

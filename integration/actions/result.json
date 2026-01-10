@@ -1,0 +1,27 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_deprecated_function_invokes",
+        "severity": "error",
+        "link": "policies/main.rego:5"
+      },
+      "message": "deprecated-function is deprecated",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 3,
+          "column": 21
+        },
+        "end": {
+          "line": 3,
+          "column": 66
+        }
+      },
+      "callers": [],
+      "fixable": false,
+      "fixed": false
+    }
+  ],
+  "errors": []
+}

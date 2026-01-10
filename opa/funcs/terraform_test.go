@@ -1655,6 +1655,139 @@ ephemeral "aws_secretsmanager_secret_version" "db_password" {
 	}
 }
 
+func TestActionsFunc(t *testing.T) {
+	tests := []struct {
+		name         string
+		config       string
+		resourceType string
+		schema       map[string]any
+		options      map[string]string
+		want         []map[string]any
+	}{
+		{
+			name: "action",
+			config: `
+action "aws_lambda_invoke" "example" {
+  config {
+    function_name = "123456789012:function:my-function:1"
+  }
+}`,
+			resourceType: "aws_lambda_invoke",
+			schema:       map[string]any{"config": map[string]any{"function_name": "string"}},
+			want: []map[string]any{
+				{
+					"type": "aws_lambda_invoke",
+					"name": "example",
+					"config": map[string]any{
+						"config": []map[string]any{
+							{
+								"config": map[string]any{
+									"function_name": map[string]any{
+										"value":     "123456789012:function:my-function:1",
+										"unknown":   false,
+										"sensitive": false,
+										"ephemeral": false,
+										"range": map[string]any{
+											"filename": "main.tf",
+											"start": map[string]int{
+												"line":   4,
+												"column": 21,
+												"byte":   71,
+											},
+											"end": map[string]int{
+												"line":   4,
+												"column": 58,
+												"byte":   108,
+											},
+										},
+									},
+								},
+								"labels": []string(nil),
+								"decl_range": map[string]any{
+									"filename": "main.tf",
+									"start": map[string]int{
+										"line":   3,
+										"column": 3,
+										"byte":   42,
+									},
+									"end": map[string]int{
+										"line":   3,
+										"column": 9,
+										"byte":   48,
+									},
+								},
+							},
+						},
+					},
+					"decl_range": map[string]any{
+						"filename": "main.tf",
+						"start": map[string]int{
+							"line":   2,
+							"column": 1,
+							"byte":   1,
+						},
+						"end": map[string]int{
+							"line":   2,
+							"column": 37,
+							"byte":   37,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			resourceType, err := ast.InterfaceToValue(test.resourceType)
+			if err != nil {
+				t.Fatal(err)
+			}
+			schema, err := ast.InterfaceToValue(test.schema)
+			if err != nil {
+				t.Fatal(err)
+			}
+			options, err := ast.InterfaceToValue(test.options)
+			if err != nil {
+				t.Fatal(err)
+			}
+			config, err := ast.InterfaceToValue(map[string]string{"main.tf": test.config})
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := ast.InterfaceToValue(test.want)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
+			if diags.HasErrors() {
+				t.Fatal(diags)
+			}
+
+			ctx := rego.BuiltinContext{}
+			got, err := ActionsFunc(runner).Impl(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+
+			ctx = rego.BuiltinContext{}
+			got, err = MockFunction3(ActionsFunc).Impl(ctx, ast.NewTerm(resourceType), ast.NewTerm(schema), ast.NewTerm(options), ast.NewTerm(config))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func TestModuleRangeFunc(t *testing.T) {
 	tests := []struct {
 		name   string

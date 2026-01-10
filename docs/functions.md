@@ -782,6 +782,63 @@ terraform.ephemeral_resources("random_password", {"length": "number"}, {})
 ]
 ```
 
+## `terraform.actions`
+
+```rego
+actions := terraform.actions(action_type, schema, options)
+```
+
+Returns Terraform action blocks.
+
+- `action_type` (string): action type to retrieve. "*" is a special character that returns all actions.
+- `schema` (schema): schema for attributes referenced in rules.
+- `options` (object[string: string]): options to change the retrieve/evaluate behavior.
+
+Returns:
+
+- `actions` (array[object<type: string, name: string, config: body, decl_range: range>]): Terraform "action" blocks.
+
+The `schema` and `options` are equivalent to the arguments of the `terraform.resources` function.
+
+Examples:
+
+```hcl
+action "aws_lambda_invoke" "example" {
+  config {
+    function_name = "123456789012:function:my-function:1"
+  }
+}
+```
+
+```rego
+terraform.actions("aws_lambda_invoke", {"config": {"function_name": "string"}}, {})
+```
+
+```json
+[
+  {
+    "config": {
+      "config": [
+        {
+          "config": {
+            "function_name": {
+              "value": "123456789012:function:my-function:1",
+              "unknown": true,
+              "sensitive": false,
+              "ephemeral": false,
+              "range": {...}
+            }
+          },
+          "labels": null,
+          "decl_range": {...}
+        }
+      ]
+    },
+    "decl_range": {...}
+  }
+]
+```
+
 ## `terraform.module_range`
 
 ```rego

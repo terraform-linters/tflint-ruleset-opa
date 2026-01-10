@@ -258,6 +258,17 @@ func TestIntegration(t *testing.T) {
 			dir:     "expr_without_eval",
 			test:    true,
 		},
+		{
+			name:    "actions",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "actions",
+		},
+		{
+			name:    "actions (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "actions",
+			test:    true,
+		},
 	}
 
 	dir, _ := os.Getwd()
