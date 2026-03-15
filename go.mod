@@ -1,6 +1,6 @@
 module github.com/terraform-linters/tflint-ruleset-opa
 
-go 1.25.5
+go 1.26.1
 
 require (
 	github.com/google/go-cmp v0.7.0
