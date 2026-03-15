@@ -2,13 +2,14 @@ package opa
 
 import (
 	"os"
+	"strings"
 
 	"github.com/mitchellh/go-homedir"
 )
 
 // Config is the configuration for the ruleset.
 type Config struct {
-	PolicyDir string `hclext:"policy_dir,optional"`
+	PolicyDirs []string `hclext:"policy_dirs,optional"`
 }
 
 var (
@@ -16,31 +17,57 @@ var (
 	localPolicyRoot = "./.tflint.d/policies"
 )
 
-// policyDir returns the base policy directory.
+// policyDirs returns the policy directories to load.
 // Adopted with the following priorities:
 //
-//  1. `policy_dir` in a config file
-//  2. `TFLINT_OPA_POLICY_DIR` environment variable
+//  1. `policy_dirs` in a config file
+//  2. `TFLINT_OPA_POLICY_DIRS` environment variable (supports multiple directories separated by `,`)
 //  3. Current directory (./.tflint.d/policies)
 //  4. Home directory (~/.tflint.d/policies)
 //
 // If the environment variable is set, other directories will not be considered,
 // but if the current directory does not exist, it will fallback to the home directory.
-func (c *Config) policyDir() (string, error) {
-	if c.PolicyDir != "" {
-		return homedir.Expand(c.PolicyDir)
+func (c *Config) policyDirs() ([]string, error) {
+	var expandedDirs []string
+
+	// Priority 1: policy_dirs from config
+	for _, dir := range c.PolicyDirs {
+		expanded, err := homedir.Expand(dir)
+		if err != nil {
+			return nil, err
+		}
+		expandedDirs = append(expandedDirs, expanded)
 	}
 
-	if dir := os.Getenv("TFLINT_OPA_POLICY_DIR"); dir != "" {
-		return dir, nil
+	if len(expandedDirs) > 0 {
+		return expandedDirs, nil
 	}
 
+	// Priority 2: TFLINT_OPA_POLICY_DIRS environment variable
+	// Supports multiple directories separated by `,`
+	for dir := range strings.SplitSeq(os.Getenv("TFLINT_OPA_POLICY_DIRS"), ",") {
+		dir = strings.TrimSpace(dir)
+		if dir != "" {
+			expanded, err := homedir.Expand(dir)
+			if err != nil {
+				return nil, err
+			}
+			expandedDirs = append(expandedDirs, expanded)
+		}
+	}
+
+	if len(expandedDirs) > 0 {
+		return expandedDirs, nil
+	}
+
+	// Priority 3 & 4: Check local directory, fallback to home directory
 	_, err := os.Stat(localPolicyRoot)
 	if os.IsNotExist(err) {
-		return policyRootDir()
+		dir, err := policyRootDir()
+		return []string{dir}, err 
 	}
 
-	return localPolicyRoot, err
+	return []string{localPolicyRoot}, err
 }
 
 func policyRootDir() (string, error) {
