@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,6 +13,8 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/open-policy-agent/opa/v1/bundle"
+	"github.com/open-policy-agent/opa/v1/loader"
 )
 
 type Result struct {
@@ -42,12 +46,17 @@ type Pos struct {
 	Column int `json:"column"`
 }
 
+type bundleSetup struct {
+	policyDir string
+}
+
 func TestIntegration(t *testing.T) {
 	tests := []struct {
 		name    string
 		command *exec.Cmd
 		dir     string
 		test    bool
+		bundle  *bundleSetup
 	}{
 		{
 			name:    "instance type",
@@ -269,6 +278,12 @@ func TestIntegration(t *testing.T) {
 			dir:     "actions",
 			test:    true,
 		},
+		{
+			name:    "remote bundle",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "remote_bundle",
+			bundle:  &bundleSetup{policyDir: "policies"},
+		},
 	}
 
 	dir, _ := os.Getwd()
@@ -281,6 +296,16 @@ func TestIntegration(t *testing.T) {
 
 			if test.test {
 				test.command.Env = append(os.Environ(), "TFLINT_OPA_TEST=1")
+			}
+
+			var bundleServerURL string
+			if test.bundle != nil {
+				bundleDir := filepath.Join(testDir, test.bundle.policyDir)
+				server := serveBundleFromDir(t, bundleDir)
+				defer server.Close()
+
+				bundleServerURL = server.URL
+				t.Setenv("TFLINT_OPA_BUNDLE_URL", server.URL)
 			}
 
 			var stdout, stderr bytes.Buffer
@@ -300,8 +325,15 @@ func TestIntegration(t *testing.T) {
 				t.Fatal(err)
 			}
 
+			out := stdout.Bytes()
+			// The bundle server runs on a random port, so normalize its URL to a
+			// stable placeholder before comparing against the expected result.
+			if bundleServerURL != "" {
+				out = bytes.ReplaceAll(out, []byte(bundleServerURL), []byte("https://bundle.example.com"))
+			}
+
 			var got Result
-			if err := json.Unmarshal(stdout.Bytes(), &got); err != nil {
+			if err := json.Unmarshal(out, &got); err != nil {
 				t.Fatal(err)
 			}
 
@@ -321,6 +353,44 @@ func TestIntegration(t *testing.T) {
 			}
 		})
 	}
+}
+
+func serveBundleFromDir(t *testing.T, policyDir string) *httptest.Server {
+	t.Helper()
+
+	ret, err := loader.NewFileLoader().Filtered([]string{policyDir}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Bundle paths are archive paths and must use forward slashes on all
+	// platforms. The fixtures are flat (one .rego per dir), so the bundle path
+	// is "<dir>/<file>", e.g. "policies/main.rego".
+	dirName := filepath.Base(policyDir)
+
+	var mods []bundle.ModuleFile
+	for _, regoFile := range ret.Modules {
+		relPath := dirName + "/" + filepath.Base(regoFile.Name)
+		mods = append(mods, bundle.ModuleFile{
+			URL:  relPath,
+			Path: relPath,
+			Raw:  regoFile.Raw,
+		})
+	}
+
+	b := bundle.Bundle{
+		Modules: mods,
+		Data:    map[string]interface{}{},
+	}
+	var buf bytes.Buffer
+	if err := bundle.NewWriter(&buf).Write(b); err != nil {
+		t.Fatal(err)
+	}
+	bundleBytes := buf.Bytes()
+
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write(bundleBytes)
+	}))
 }
 
 func readResultFile(dir string, test bool) ([]byte, error) {

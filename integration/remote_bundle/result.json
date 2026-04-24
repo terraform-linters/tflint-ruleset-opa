@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_not_t2_micro",
+        "severity": "error",
+        "link": "https://bundle.example.com!/policies/main.rego:5"
+      },
+      "message": "t2.micro is only allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 2,
+          "column": 19
+        },
+        "end": {
+          "line": 2,
+          "column": 29
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}

@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/open-policy-agent/opa/v1/ast"
-	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/open-policy-agent/opa/v1/rego"
 	"github.com/open-policy-agent/opa/v1/storage"
 	"github.com/open-policy-agent/opa/v1/tester"
@@ -32,12 +31,7 @@ type Engine struct {
 }
 
 // NewEngine returns a new engine based on the policies loaded
-func NewEngine(ret *loader.Result) (*Engine, error) {
-	store, err := ret.Store()
-	if err != nil {
-		return nil, err
-	}
-
+func NewEngine(store storage.Store, modules map[string]*ast.Module) (*Engine, error) {
 	logWriter := logger.Logger().StandardWriter(&hclog.StandardLoggerOptions{ForceLevel: hclog.Debug})
 	printer := topdown.NewPrintHook(logWriter)
 
@@ -50,7 +44,7 @@ func NewEngine(ret *loader.Result) (*Engine, error) {
 
 	return &Engine{
 		store:       store,
-		modules:     ret.ParsedModules(),
+		modules:     modules,
 		print:       printer,
 		traceWriter: traceWriter,
 		runtime:     runtime(),
