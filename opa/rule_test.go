@@ -85,7 +85,11 @@ deny_instance_type contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -152,7 +156,11 @@ deny_not_snake_case contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +228,11 @@ warn_standard_volume contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -292,7 +304,11 @@ deny_large_volume contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -398,7 +414,11 @@ deny_untagged_instance contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -482,7 +502,11 @@ deny_resource contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -549,7 +573,11 @@ deny_no_resource contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -612,7 +640,11 @@ deny_dynamic_block contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}

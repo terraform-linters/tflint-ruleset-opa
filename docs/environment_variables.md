@@ -4,6 +4,8 @@ Below is a list of environment variables that have meaning in the OPA ruleset:
 
 - `TFLINT_OPA_POLICY_DIR`
   - Directory where policy files are placed. See [Configuration](./configuration.md).
+- `TFLINT_OPA_BUNDLE_URL`
+  - URL of a remote OPA bundle server. See [Configuration](./configuration.md).
 - `TFLINT_OPA_TRACE`
   - Enable tracing. See [Debugging](./debug.md).
 - `TFLINT_OPA_TEST`
