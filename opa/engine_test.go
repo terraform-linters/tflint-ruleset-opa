@@ -149,7 +149,12 @@ deny_test if {
 				t.Fatal(err)
 			}
 
-			engine, err := NewEngine(ret)
+			store, err := ret.Store()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			engine, err := NewEngine(store, ret.ParsedModules())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -275,7 +280,12 @@ test_deny if {
 				t.Fatal(err)
 			}
 
-			engine, err := NewEngine(ret)
+			store, err := ret.Store()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			engine, err := NewEngine(store, ret.ParsedModules())
 			if err != nil {
 				t.Fatal(err)
 			}
