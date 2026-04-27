@@ -9,6 +9,7 @@ import (
 // Config is the configuration for the ruleset.
 type Config struct {
 	PolicyDir string `hclext:"policy_dir,optional"`
+	BundleURL string `hclext:"bundle_url,optional"`
 }
 
 var (
@@ -52,4 +53,26 @@ func policyRootDir() (string, error) {
 	// Returning os.ErrNotExist allows checking to continue even if it doesn't exist
 	_, err = os.Stat(dir)
 	return dir, err
+}
+
+// bundleURL returns the bundle URL if configured.
+// Adopted with the following priorities:
+//
+//  1. `bundle_url` in a config file
+//  2. `TFLINT_OPA_BUNDLE_URL` environment variable
+func (c *Config) bundleURL() string {
+	if c.BundleURL != "" {
+		return c.BundleURL
+	}
+	return os.Getenv("TFLINT_OPA_BUNDLE_URL")
+}
+
+var bundleCacheRoot = "~/.tflint.d/cache/bundles"
+
+func bundleCacheDir() string {
+	dir, err := homedir.Expand(bundleCacheRoot)
+	if err != nil {
+		return ""
+	}
+	return dir
 }
