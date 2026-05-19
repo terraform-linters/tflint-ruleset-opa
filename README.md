@@ -24,7 +24,19 @@ plugin "opa" {
 }
 ```
 
-Policy files are placed under `~/.tflint.d/policies` or `./.tflint.d/policies`. First create a directory:
+Policies can be loaded from a local directory or fetched from a remote [OPA bundle](https://www.openpolicyagent.org/docs/latest/management-bundles/) server. For remote bundles, add `bundle_url` to the plugin config:
+
+```hcl
+plugin "opa" {
+  enabled    = true
+  version    = "0.11.0"
+  source     = "github.com/terraform-linters/tflint-ruleset-opa"
+
+  bundle_url = "https://policy-server.example.com/bundles/tflint.tar.gz"
+}
+```
+
+For local policies, files are placed under `~/.tflint.d/policies` or `./.tflint.d/policies`. First create a directory:
 
 ```console
 $ mkdir -p .tflint.d/policies
