@@ -30,9 +30,9 @@ func TestApplyConfig(t *testing.T) {
 			name: "rules exists",
 			config: &hclext.BodyContent{
 				Attributes: hclext.Attributes{
-					"policy_dir": &hclext.Attribute{
-						Name: "policy_dir",
-						Expr: hcl.StaticExpr(cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-exists", ".tflint.d", "policies")), hcl.Range{}),
+					"policy_dirs": &hclext.Attribute{
+						Name: "policy_dirs",
+						Expr: hcl.StaticExpr(cty.TupleVal([]cty.Value{cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-exists", ".tflint.d", "policies"))}), hcl.Range{}),
 					},
 				},
 			},
@@ -42,9 +42,9 @@ func TestApplyConfig(t *testing.T) {
 			name: "tests exists",
 			config: &hclext.BodyContent{
 				Attributes: hclext.Attributes{
-					"policy_dir": &hclext.Attribute{
-						Name: "policy_dir",
-						Expr: hcl.StaticExpr(cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-exists", ".tflint.d", "policies")), hcl.Range{}),
+					"policy_dirs": &hclext.Attribute{
+						Name: "policy_dirs",
+						Expr: hcl.StaticExpr(cty.TupleVal([]cty.Value{cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-exists", ".tflint.d", "policies"))}), hcl.Range{}),
 					},
 				},
 			},
@@ -62,9 +62,9 @@ func TestApplyConfig(t *testing.T) {
 			name: "policy dir does not exists",
 			config: &hclext.BodyContent{
 				Attributes: hclext.Attributes{
-					"policy_dir": &hclext.Attribute{
-						Name: "policy_dir",
-						Expr: hcl.StaticExpr(cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-not-exists", ".tflint.d", "policies")), hcl.Range{}),
+					"policy_dirs": &hclext.Attribute{
+						Name: "policy_dirs",
+						Expr: hcl.StaticExpr(cty.TupleVal([]cty.Value{cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-not-exists", ".tflint.d", "policies"))}), hcl.Range{}),
 					},
 				},
 			},
