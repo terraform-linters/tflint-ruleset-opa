@@ -797,6 +797,130 @@ terraform {
 	}
 }
 
+func TestRequiredProvidersFunc(t *testing.T) {
+	tests := []struct {
+		name    string
+		config  string
+		schema  map[string]any
+		options map[string]string
+		want    []map[string]any
+	}{
+		{
+			name: "required providers",
+			config: `
+terraform {
+	required_providers {
+		aws = {
+			source  = "hashicorp/aws"
+			version = "~> 4.0"
+		}
+	}
+}`,
+			want: []map[string]any{
+				{
+					"config": map[string]any{
+						"aws": map[string]any{
+							"source": map[string]any{
+								"value":     "hashicorp/aws",
+								"unknown":   false,
+								"sensitive": false,
+								"ephemeral": false,
+								"range": map[string]any{
+									"filename": "main.tf",
+									"start": map[string]int{
+										"line":   5,
+										"column": 14,
+										"byte":   58,
+									},
+									"end": map[string]int{
+										"line":   5,
+										"column": 29,
+										"byte":   73,
+									},
+								},
+							},
+							"version": map[string]any{
+								"value":     "~> 4.0",
+								"unknown":   false,
+								"sensitive": false,
+								"ephemeral": false,
+								"range": map[string]any{
+									"filename": "main.tf",
+									"start": map[string]int{
+										"line":   6,
+										"column": 14,
+										"byte":   87,
+									},
+									"end": map[string]int{
+										"line":   6,
+										"column": 22,
+										"byte":   95,
+									},
+								},
+							},
+						},
+					},
+					"decl_range": map[string]any{
+						"filename": "main.tf",
+						"start": map[string]int{
+							"line":   3,
+							"column": 2,
+							"byte":   14,
+						},
+						"end": map[string]int{
+							"line":   3,
+							"column": 20,
+							"byte":   32,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			options, err := ast.InterfaceToValue(test.options)
+			if err != nil {
+				t.Fatal(err)
+			}
+			config, err := ast.InterfaceToValue(map[string]string{"main.tf": test.config})
+			if err != nil {
+				t.Fatal(err)
+			}
+			want, err := ast.InterfaceToValue(test.want)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			runner, diags := tester.NewRunner(map[string]string{"main.tf": test.config})
+			if diags.HasErrors() {
+				t.Fatal(diags)
+			}
+
+			ctx := rego.BuiltinContext{}
+			got, err := RequiredProvidersFunc(runner).Impl(ctx, ast.NewTerm(options))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+
+			ctx = rego.BuiltinContext{}
+			got, err = MockFunction1(RequiredProvidersFunc).Impl(ctx, ast.NewTerm(options), ast.NewTerm(config))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if diff := cmp.Diff(want.String(), got.Value.String()); diff != "" {
+				t.Error(diff)
+			}
+		})
+	}
+}
+
 func TestVariablesFunc(t *testing.T) {
 	tests := []struct {
 		name    string
