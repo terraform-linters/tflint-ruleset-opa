@@ -1,0 +1,25 @@
+{
+  "issues": [
+    {
+      "rule": {
+        "name": "opa_deny_unapproved_source",
+        "severity": "error",
+        "link": "policies/main.rego:11"
+      },
+      "message": "provider source \"badguy/azurerm\" is not allowed",
+      "range": {
+        "filename": "main.tf",
+        "start": {
+          "line": 4,
+          "column": 31
+        },
+        "end": {
+          "line": 4,
+          "column": 47
+        }
+      },
+      "callers": []
+    }
+  ],
+  "errors": []
+}
