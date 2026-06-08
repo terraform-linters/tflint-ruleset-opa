@@ -119,7 +119,11 @@ deny_not_t2_micro contains issue if {
 			if err != nil {
 				t.Fatal(err)
 			}
-			engine, err := NewEngine(ret)
+			store, err := ret.Store()
+			if err != nil {
+				t.Fatal(err)
+			}
+			engine, err := NewEngine(store, ret.ParsedModules())
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -207,7 +211,11 @@ deny_not_snake_case contains issue if {
 			if err != nil {
 				t.Fatal(err)
 			}
-			engine, err := NewEngine(ret)
+			store, err := ret.Store()
+			if err != nil {
+				t.Fatal(err)
+			}
+			engine, err := NewEngine(store, ret.ParsedModules())
 			if err != nil {
 				t.Fatal(err)
 			}

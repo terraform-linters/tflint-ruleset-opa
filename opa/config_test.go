@@ -88,3 +88,52 @@ func TestPolicyDir(t *testing.T) {
 		})
 	}
 }
+
+func TestBundleURL(t *testing.T) {
+	tests := []struct {
+		name   string
+		config *Config
+		env    map[string]string
+		want   string
+	}{
+		{
+			name:   "default (empty)",
+			config: &Config{},
+			want:   "",
+		},
+		{
+			name:   "env",
+			config: &Config{},
+			env: map[string]string{
+				"TFLINT_OPA_BUNDLE_URL": "https://example.com/bundle.tar.gz",
+			},
+			want: "https://example.com/bundle.tar.gz",
+		},
+		{
+			name:   "config",
+			config: &Config{BundleURL: "https://config.example.com/bundle.tar.gz"},
+			want:   "https://config.example.com/bundle.tar.gz",
+		},
+		{
+			name:   "config takes precedence over env",
+			config: &Config{BundleURL: "https://config.example.com/bundle.tar.gz"},
+			env: map[string]string{
+				"TFLINT_OPA_BUNDLE_URL": "https://env.example.com/bundle.tar.gz",
+			},
+			want: "https://config.example.com/bundle.tar.gz",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			for k, v := range test.env {
+				t.Setenv(k, v)
+			}
+
+			got := test.config.bundleURL()
+			if got != test.want {
+				t.Fatalf("want: %s, got: %s", test.want, got)
+			}
+		})
+	}
+}
