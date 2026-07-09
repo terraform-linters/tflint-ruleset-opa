@@ -5,5 +5,5 @@ plugin "terraform" {
 plugin "opa" {
   enabled = true
 
-  policy_dir = "policies"
+  policy_dirs = ["policies"]
 }
