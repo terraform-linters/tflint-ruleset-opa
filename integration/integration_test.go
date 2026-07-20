@@ -169,6 +169,17 @@ func TestIntegration(t *testing.T) {
 			test:    true,
 		},
 		{
+			name:    "required providers",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "required_providers",
+		},
+		{
+			name:    "required providers (test)",
+			command: exec.Command("tflint", "--format", "json", "--force"),
+			dir:     "required_providers",
+			test:    true,
+		},
+		{
 			name:    "variables",
 			command: exec.Command("tflint", "--format", "json", "--force"),
 			dir:     "variables",

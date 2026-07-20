@@ -244,6 +244,151 @@ func SettingsFunc(runner tflint.Runner) *Function2 {
 	}
 }
 
+// terraform.required_providers: required_providers := terraform.required_providers(options)
+//
+// Returns Terraform required providers.
+//
+//	options (options) options to change the retrieve/evaluate behavior.
+//
+// Returns:
+//
+//	required_providers (array[block]) Terraform "required_providers" blocks
+func RequiredProvidersFunc(runner tflint.Runner) *Function1 {
+	requiredProviderTy := types.NewObject(
+		nil,
+		types.NewDynamicProperty(types.S, exprTy),
+	)
+	requiredProvidersConfigTy := types.NewObject(
+		nil,
+		types.NewDynamicProperty(types.S, requiredProviderTy),
+	)
+	requiredProvidersBlockTy := types.NewObject(
+		[]*types.StaticProperty{
+			types.NewStaticProperty("config", requiredProvidersConfigTy),
+			types.NewStaticProperty("decl_range", rangeTy),
+		},
+		nil,
+	)
+
+	return &Function1{
+		Function: Function{
+			Decl: &rego.Function{
+				Name: "terraform.required_providers",
+				Decl: types.NewFunction(
+					types.Args(optionsTy),
+					types.NewArray(nil, requiredProvidersBlockTy),
+				),
+				Memoize:          true,
+				Nondeterministic: true,
+			},
+		},
+		Impl: func(_ rego.BuiltinContext, options *ast.Term) (*ast.Term, error) {
+			var optionJSON map[string]string
+			if err := ast.As(options.Value, &optionJSON); err != nil {
+				return nil, err
+			}
+			option, err := jsonToOption(optionJSON)
+			if err != nil {
+				return nil, err
+			}
+
+			content, err := runner.GetModuleContent(&hclext.BodySchema{
+				Blocks: []hclext.BlockSchema{
+					{
+						Type: "terraform",
+						Body: &hclext.BodySchema{
+							Blocks: []hclext.BlockSchema{
+								{
+									Type: "required_providers",
+									Body: &hclext.BodySchema{Mode: hclext.SchemaJustAttributesMode},
+								},
+							},
+						},
+					},
+				},
+			}, option.AsGetModuleContentOptions())
+			if err != nil {
+				return nil, err
+			}
+
+			blocks := []*hclext.Block{}
+			for _, block := range content.Blocks {
+				blocks = append(blocks, block.Body.Blocks...)
+			}
+
+			out := make([]map[string]any, len(blocks))
+			for i, block := range blocks {
+				body, err := requiredProvidersBodyToJSON(block.Body.Attributes, runner)
+				if err != nil {
+					return nil, err
+				}
+
+				out[i] = map[string]any{
+					"config":     body,
+					"decl_range": rangeToJSON(block.DefRange),
+				}
+			}
+			v, err := ast.InterfaceToValue(out)
+			if err != nil {
+				return nil, err
+			}
+
+			return ast.NewTerm(v), nil
+		},
+	}
+}
+
+func requiredProvidersBodyToJSON(attrs hclext.Attributes, runner tflint.Runner) (map[string]any, error) {
+	ret := map[string]any{}
+
+	for name, attr := range attrs {
+		pairs, diags := hcl.ExprMap(attr.Expr)
+		if diags.HasErrors() {
+			return nil, diags
+		}
+
+		value := map[string]any{}
+		for _, pair := range pairs {
+			key, err := exprMapKeyToString(pair.Key)
+			if err != nil {
+				return nil, err
+			}
+
+			result, err := exprToJSON(pair.Value, map[string]cty.Type{"expr": cty.DynamicPseudoType}, "expr", runner)
+			if err != nil {
+				return nil, err
+			}
+
+			value[key] = result
+		}
+
+		ret[name] = value
+	}
+
+	return ret, nil
+}
+
+func exprMapKeyToString(expr hcl.Expression) (string, error) {
+	if keyword := hcl.ExprAsKeyword(expr); keyword != "" {
+		return keyword, nil
+	}
+
+	value, diags := expr.Value(nil)
+	if diags.HasErrors() {
+		return "", diags
+	}
+	if value.Type() == cty.String {
+		return value.AsString(), nil
+	}
+
+	return "", hcl.Diagnostics{{
+		Severity: hcl.DiagError,
+		Summary:  "invalid map key",
+		Detail:   "map key must be a string or keyword",
+		Subject:  expr.Range().Ptr(),
+	}}
+}
+
 // terraform.variables: variables := terraform.variables(schema, options)
 //
 // Returns Terraform variables.

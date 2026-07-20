@@ -392,6 +392,74 @@ terraform.settings({"required_providers": {"aws": "map(string)"}}, {})
 ]
 ```
 
+## `terraform.required_providers`
+
+```rego
+required_providers := terraform.required_providers(options)
+```
+
+Returns Terraform required providers.
+
+- `options` (object[string: string]): options to change the retrieve/evaluate behavior.
+
+Returns:
+
+- `required_providers` (array[object<config: body, decl_range: range>]): Terraform `required_providers` blocks.
+
+All provider definitions inside the `required_providers` block are returned without providing a schema.
+Each provider entry in `config` contains a map of provider attributes.
+Each provider attribute is represented as an `expr` object, so metadata such as `unknown`, `sensitive`, `ephemeral`, and `range` is available per attribute.
+
+Examples:
+
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      source                = "hashicorp/aws"
+      version               = "~> 4.0"
+      configuration_aliases = [aws.us_east_1]
+    }
+  }
+}
+```
+
+```rego
+terraform.required_providers({})
+```
+
+```json
+[
+  {
+    "config": {
+      "aws": {
+        "source": {
+          "value": "hashicorp/aws",
+          "unknown": false,
+          "sensitive": false,
+          "ephemeral": false,
+          "range": {...}
+        },
+        "version": {
+          "value": "~> 4.0",
+          "unknown": false,
+          "sensitive": false,
+          "ephemeral": false,
+          "range": {...}
+        },
+        "configuration_aliases": {
+          "unknown": true,
+          "sensitive": false,
+          "ephemeral": false,
+          "range": {...}
+        },
+      }
+    },
+    "decl_range": {...}
+  }
+]
+```
+
 ## `terraform.variables`
 
 ```rego
