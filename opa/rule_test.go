@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/liamg/memoryfs"
 	"github.com/open-policy-agent/opa/v1/ast"
+	"github.com/open-policy-agent/opa/v1/ast/location"
 	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/terraform-linters/tflint-plugin-sdk/helper"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
@@ -64,6 +65,35 @@ func TestNewRule(t *testing.T) {
 	}
 }
 
+func TestRuleLink(t *testing.T) {
+	loc := &location.Location{File: "/policies/main.rego", Row: 5}
+
+	tests := []struct {
+		name   string
+		source string
+		want   string
+	}{
+		{
+			name: "local policy",
+			want: "/policies/main.rego:5",
+		},
+		{
+			name:   "bundle policy",
+			source: "https://policy-server.example.com/bundles/tflint.tar.gz",
+			want:   "https://policy-server.example.com/bundles/tflint.tar.gz!/policies/main.rego:5",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			rule := &Rule{location: loc, source: test.source}
+			if got := rule.Link(); got != test.want {
+				t.Fatalf("want: %s, got: %s", test.want, got)
+			}
+		})
+	}
+}
+
 func TestCheck_deny_instance_type(t *testing.T) {
 	fs := memoryfs.New()
 	policy := `
@@ -85,7 +115,11 @@ deny_instance_type contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -152,7 +186,11 @@ deny_not_snake_case contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +258,11 @@ warn_standard_volume contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -292,7 +334,11 @@ deny_large_volume contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -398,7 +444,11 @@ deny_untagged_instance contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -482,7 +532,11 @@ deny_resource contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -549,7 +603,11 @@ deny_no_resource contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -612,7 +670,11 @@ deny_dynamic_block contains issue if {
 	if err != nil {
 		t.Fatal(err)
 	}
-	engine, err := NewEngine(ret)
+	store, err := ret.Store()
+	if err != nil {
+		t.Fatal(err)
+	}
+	engine, err := NewEngine(store, ret.ParsedModules())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -19,6 +19,9 @@ type Rule struct {
 	regoName string
 	severity tflint.Severity
 	location *location.Location
+	// source is the remote bundle URL when the rule was loaded from a bundle,
+	// or empty for local policies. It prefixes Link() to make the origin clear.
+	source string
 }
 
 var _ tflint.Rule = (*Rule)(nil)
@@ -63,6 +66,11 @@ func (r *Rule) Severity() tflint.Severity {
 }
 
 func (r *Rule) Link() string {
+	// For bundle-sourced rules, prefix the in-bundle location with the bundle URL
+	// (jar-style, "<url>!/<path>") so it's clear the policy came from a remote bundle.
+	if r.source != "" {
+		return r.source + "!" + r.location.String()
+	}
 	return r.location.String()
 }
 

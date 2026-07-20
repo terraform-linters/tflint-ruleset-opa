@@ -18,6 +18,9 @@ type TestRule struct {
 	name     string
 	regoName string
 	location *location.Location
+	// source is the remote bundle URL when the rule was loaded from a bundle,
+	// or empty for local policies. It prefixes Link() to make the origin clear.
+	source string
 }
 
 var _ tflint.Rule = (*TestRule)(nil)
@@ -55,6 +58,9 @@ func (r *TestRule) Severity() tflint.Severity {
 }
 
 func (r *TestRule) Link() string {
+	if r.source != "" {
+		return r.source + "!" + r.location.String()
+	}
 	return r.location.String()
 }
 

@@ -70,6 +70,53 @@ func TestApplyConfig(t *testing.T) {
 			},
 			err: true,
 		},
+		{
+			name: "bundle_url and policy_dir are mutually exclusive",
+			config: &hclext.BodyContent{
+				Attributes: hclext.Attributes{
+					"policy_dir": &hclext.Attribute{
+						Name: "policy_dir",
+						Expr: hcl.StaticExpr(cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "root-exists", ".tflint.d", "policies")), hcl.Range{}),
+					},
+					"bundle_url": &hclext.Attribute{
+						Name: "bundle_url",
+						Expr: hcl.StaticExpr(cty.StringVal("https://example.com/bundle.tar.gz"), hcl.Range{}),
+					},
+				},
+			},
+			err: true,
+		},
+		{
+			name: "policy_dir via env and bundle_url are mutually exclusive",
+			config: &hclext.BodyContent{
+				Attributes: hclext.Attributes{
+					"bundle_url": &hclext.Attribute{
+						Name: "bundle_url",
+						Expr: hcl.StaticExpr(cty.StringVal("https://example.com/bundle.tar.gz"), hcl.Range{}),
+					},
+				},
+			},
+			env: map[string]string{
+				"TFLINT_OPA_POLICY_DIR": filepath.Join(cwd, "test-fixtures", "config", "root-exists", ".tflint.d", "policies"),
+			},
+			err: true,
+		},
+		{
+			name: "bundle_url and local data are mutually exclusive",
+			config: &hclext.BodyContent{
+				Attributes: hclext.Attributes{
+					"policy_dir": &hclext.Attribute{
+						Name: "policy_dir",
+						Expr: hcl.StaticExpr(cty.StringVal(filepath.Join(cwd, "test-fixtures", "config", "data-only")), hcl.Range{}),
+					},
+					"bundle_url": &hclext.Attribute{
+						Name: "bundle_url",
+						Expr: hcl.StaticExpr(cty.StringVal("https://example.com/bundle.tar.gz"), hcl.Range{}),
+					},
+				},
+			},
+			err: true,
+		},
 	}
 
 	original := policyRoot
