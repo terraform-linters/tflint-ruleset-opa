@@ -1,46 +1,25 @@
-# Enforce bucket names
+# Enforce local-exec provisioner
 
-This is an example of applying naming conventions to top-level attributes.
+This is an example of enforcing that `local-exec` provisioners are not allowed in Terraform configurations.
 
 ## Requirements
 
-- Disallow S3 bucket names starting with anything other than "example-com-".
-- Disallow unknown bucket name.
-- Always warn even if the bucket is not created.
-- Ignore if bucket name is not set.
+- Disallow `local-exec` provisioners.
+- Allow other provisioner types (e.g., `remote-exec`, `file`).
+- Always warn even if the provisioner is not created.
+- Ignore if no provisioner is set.
 
 ## Results
 
 ```console
 $ tflint
-4 issue(s) found:
+1 issue(s) found:
 
-Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3_bucket_name)
+Error: local-exec provisioner is not allowed (on aws_instance.example) (opa_deny_local_exec_provisioner)
 
   on main.tf line 2:
-   2:   bucket = "example-corp-assets"
+ 107:   provisioner "local-exec" {
 
-Reference: .tflint.d/policies/bucket.rego:13
-
-Error: Dynamic value is not allowed in bucket (opa_deny_invalid_s3_bucket_name)
-
-  on main.tf line 12:
-  12:   bucket = var.unknown
-
-Reference: .tflint.d/policies/bucket.rego:13
-
-Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3_bucket_name)
-
-  on main.tf line 18:
-  18:   bucket = "example-corp-assets"
-
-Reference: .tflint.d/policies/bucket.rego:13
-
-Error: Bucket names should always start with "example-com-" (opa_deny_invalid_s3_bucket_name)
-
-  on main.tf line 24:
-  24:   bucket = "example-corp-assets"
-
-Reference: .tflint.d/policies/bucket.rego:13
+Reference: .tflint.d/policies/deny_local_exec_provisioner.rego:15
 
 ```
