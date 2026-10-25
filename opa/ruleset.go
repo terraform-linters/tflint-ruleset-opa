@@ -10,6 +10,7 @@ import (
 	"github.com/open-policy-agent/opa/v1/loader"
 	"github.com/open-policy-agent/opa/v1/storage/inmem"
 	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
+	"github.com/terraform-linters/tflint-plugin-sdk/logger"
 	"github.com/terraform-linters/tflint-plugin-sdk/tflint"
 )
 
@@ -64,6 +65,15 @@ func (r *RuleSet) ApplyConfig(body *hclext.BodyContent) error {
 		if err != nil {
 			return fmt.Errorf("failed to load policies; %w", err)
 		}
+
+		// Display loaded policies for debugging purposes.
+		logger.Debug(
+			"Loaded %d policy modules and %d data documents from %s",
+			len(ret.ParsedModules()),
+			len(ret.Documents),
+			policyDir,
+		)
+
 		modules = ret.ParsedModules()
 		data = ret.Documents
 	}
