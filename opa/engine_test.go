@@ -103,7 +103,7 @@ deny_test contains issue if {
 	issue := tflint.issue("example issue", terraform.module_range())
 }`,
 			},
-			err: "1 error occurred: main.rego:7: rego_compile_error: assigned var unused unused",
+			err: "bundle activation failed: 1 error occurred: main.rego:7: rego_compile_error: assigned var unused unused",
 		},
 		{
 			name: "builtin errors",
